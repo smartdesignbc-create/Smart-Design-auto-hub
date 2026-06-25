@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Smart Design AutoHub</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --black:#0F172A;--steel:#475569;--blue:#2563EB;--green:#10B981;
+  --amber:#F59E0B;--gold:#D4AF37;--bg:#F8FAFC;--white:#ffffff;
+  --red:#EF4444;--purple:#8B5CF6;--cyan:#06B6D4;
+  --card:#ffffff;--border:#E2E8F0;--text:#1E293B;--muted:#94A3B8;
+  --sidebar:220px;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+/* SPLASH */
+#splash{position:fixed;inset:0;background:var(--black);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.8s ease}
+#splash.fade{opacity:0;pointer-events:none}
+.splash-logo{font-size:2.4rem;font-weight:800;color:var(--white);letter-spacing:-1px;margin-bottom:6px}
+.splash-logo span{color:var(--blue)}
+.splash-tag{color:var(--muted);font-size:1rem;margin-bottom:48px;letter-spacing:2px;text-transform:uppercase}
+.splash-cars{display:flex;gap:32px;margin-bottom:48px}
+.splash-car svg{opacity:0;animation:carFade 0.6s ease forwards}
+.splash-car:nth-child(1) svg{animation-delay:0.2s}
+.splash-car:nth-child(2) svg{animation-delay:0.5s}
+.splash-car:nth-child(3) svg{animation-delay:0.8s}
+@keyframes carFade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.splash-bar{width:200px;height:3px;background:#1E293B;border-radius:2px;overflow:hidden}
+.splash-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));animation:fill 2.8s linear forwards}
+@keyframes fill{from{width:0}to{width:100%}}
+/* LAYOUT */
+#app{display:none;min-height:100vh}
+#app.show{display:flex}
+.sidebar{width:var(--sidebar);background:var(--black);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:transform 0.3s ease}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid #1E293B}
+.sidebar-logo .name{font-size:1.1rem;font-weight:800;color:var(--white);line-height:1.2}
+.sidebar-logo .name span{color:var(--blue)}
+.sidebar-logo .tag{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px}
+.nav-section{padding:16px 0 8px;border-bottom:1px solid #1E293B}
+.nav-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);padding:0 20px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;color:#94A3B8;font-size:0.83rem;transition:all 0.2s;border-left:3px solid transparent}
+.nav-item:hover{color:var(--white);background:#1E293B}
+.nav-item.active{color:var(--white);background:#1E293B;border-left-color:var(--blue)}
+.nav-item svg{flex-shrink:0}
+.sidebar-user{margin-top:auto;padding:16px 20px;border-top:1px solid #1E293B;display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:var(--white)}
+.user-info .uname{font-size:0.8rem;font-weight:600;color:var(--white)}
+.user-info .urole{font-size:0.65rem;color:var(--muted)}
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.page-title{font-size:1.1rem;font-weight:700;color:var(--text)}
+.search-wrap{position:relative}
+.search-wrap input{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 16px 8px 36px;font-size:0.83rem;width:260px;outline:none;color:var(--text)}
+.search-wrap input:focus{border-color:var(--blue)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:0.83rem;font-weight:600;cursor:pointer;border:none;transition:all 0.2s}
+.btn-primary{background:var(--blue);color:var(--white)}
+.btn-primary:hover{background:#1D4ED8}
+.btn-secondary{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--border)}
+.btn-success{background:var(--green);color:var(--white)}
+.btn-danger{background:var(--red);color:var(--white)}
+.btn-sm{padding:6px 12px;font-size:0.75rem}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:0.7rem;font-weight:600}
+.content{padding:24px}
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:0.9rem;font-weight:700;color:var(--text)}
+/* GRID */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+/* STAT CARDS */
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card.blue::before{background:var(--blue)}
+.stat-card.green::before{background:var(--green)}
+.stat-card.gold::before{background:var(--gold)}
+.stat-card.amber::before{background:var(--amber)}
+.stat-card.red::before{background:var(--red)}
+.stat-card.purple::before{background:var(--purple)}
+.stat-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
+.stat-value{font-size:1.6rem;font-weight:800;color:var(--text);line-height:1}
+.stat-value.sm{font-size:1.2rem}
+.stat-sub{font-size:0.75rem;color:var(--muted);margin-top:6px}
+.stat-icon{position:absolute;right:16px;top:50%;transform:translateY(-50%);opacity:0.08;font-size:3rem}
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:0.83rem}
+th{text-align:left;padding:10px 14px;background:var(--bg);color:var(--muted);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;border-bottom:1px solid var(--border)}
+td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#F8FAFC}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--white);border-radius:16px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,0.2);transform:translateY(20px);transition:transform 0.2s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-header{padding:24px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:1.1rem;font-weight:700}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--muted);font-size:1.2rem;padding:4px}
+.modal-body{padding:24px}
+.modal-footer{padding:0 24px 24px;display:flex;gap:12px;justify-content:flex-end}
+/* FORM */
+.form-group{margin-bottom:16px}
+.form-label{font-size:0.78rem;font-weight:600;color:var(--text);margin-bottom:6px;display:block}
+.form-control{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:0.85rem;outline:none;color:var(--text);background:var(--white);transition:border-color 0.2s}
+.form-control:focus{border-color:var(--blue)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+/* STATUS */
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--bg);border-radius:8px;padding:4px;margin-bottom:20px}
+.tab{padding:8px 16px;border-radius:6px;font-size:0.83rem;font-weight:500;cursor:pointer;color:var(--muted);transition:all 0.2s;border:none;background:none}
+.tab.active{background:var(--white);color:var(--text);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+/* PROGRESS */
+.progress-bar{background:var(--border);border-radius:999px;height:8px;overflow:hidden}
+.progress-fill{height:100%;border-radius:999px;transition:width 0.5s ease}
+/* HAMBURGER */
+.hamburger{display:none;background:none;border:none;cursor:pointer;color:var(--text);padding:4px}
+/* NOTIFICATION BADGE */
+.notif{position:relative}
+.notif-dot{position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--white)}
+/* CHARTS */
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;margin-top:8px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{width:100%;border-radius:4px 4px 0 0;background:var(--blue);opacity:0.85;transition:opacity 0.2s;min-width:20px}
+.bar:hover{opacity:1}
+.bar-label{font-size:0.65rem;color:var(--muted)}
+.bar-val{font-size:0.6rem;color:var(--muted)}
+/* PIPELINE */
+.pipeline{display:flex;gap:0}
+.pipeline-stage{flex:1;padding:12px;border:1px solid var(--border);border-right:none;background:var(--card);text-align:center}
+.pipeline-stage:last-child{border-right:1px solid var(--border);border-radius:0 8px 8px 0}
+.pipeline-stage:first-child{border-radius:8px 0 0 8px}
+.pipeline-stage .stage-count{font-size:1.4rem;font-weight:800;color:var(--text)}
+.pipeline-stage .stage-name{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-top:2px}
+/* AGING BARS */
+.aging-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.aging-label{font-size:0.78rem;color:var(--text);width:90px;flex-shrink:0}
+.aging-bar{flex:1;height:10px;background:var(--border);border-radius:999px;overflow:hidden}
+.aging-fill{height:100%;border-radius:999px}
+.aging-count{font-size:0.78rem;font-weight:600;color:var(--text);width:20px;text-align:right}
+/* LEADERBOARD */
+.leader-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.leader-row:last-child{border-bottom:none}
+.leader-rank{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:800;flex-shrink:0}
+.leader-rank.gold{background:#FEF3C7;color:#92400E}
+.leader-rank.silver{background:#F1F5F9;color:#475569}
+.leader-rank.bronze{background:#FEF9E7;color:#92400E}
+/* TASK */
+.task-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:all 0.2s}
+.task-item:hover{border-color:var(--blue);background:#EFF6FF}
+.task-item.overdue{border-color:var(--red);background:#FFF5F5}
+.task-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.task-check.done{background:var(--green);border-color:var(--green)}
+/* PREP CHECKLIST */
+.prep-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.prep-item:last-child{border-bottom:none}
+.prep-toggle{width:40px;height:22px;border-radius:999px;border:none;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0}
+.prep-toggle.on{background:var(--green)}
+.prep-toggle.off{background:var(--border)}
+.prep-toggle::after{content:'';width:18px;height:18px;border-radius:50%;background:var(--white);position:absolute;top:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.prep-toggle.on::after{left:20px}
+.prep-toggle.off::after{left:2px}
+/* VEHICLE CARD */
+.vehicle-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all 0.2s}
+.vehicle-card:hover{box-shadow:0 8px 24px rgba(0,0,0,0.1);transform:translateY(-2px)}
+.vehicle-img{height:160px;background:linear-gradient(135deg,#1E293B,#0F172A);display:flex;align-items:center;justify-content:center;position:relative}
+.vehicle-img svg{opacity:0.7}
+.vehicle-status{position:absolute;top:10px;right:10px}
+.vehicle-info{padding:14px}
+.vehicle-name{font-size:0.9rem;font-weight:700;color:var(--text)}
+.vehicle-variant{font-size:0.75rem;color:var(--muted)}
+.vehicle-price{font-size:1.1rem;font-weight:800;color:var(--blue);margin-top:8px}
+.vehicle-meta{display:flex;gap:12px;margin-top:8px}
+.vehicle-meta span{font-size:0.7rem;color:var(--muted);display:flex;align-items:center;gap:3px}
+/* SECTION HEADER */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.section-title{font-size:1.2rem;font-weight:800;color:var(--text)}
+.section-sub{font-size:0.8rem;color:var(--muted);margin-top:2px}
+/* FILTER ROW */
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.filter-btn{padding:6px 14px;border-radius:999px;font-size:0.75rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--muted);transition:all 0.2s}
+.filter-btn.active{background:var(--blue);color:var(--white);border-color:var(--blue)}
+/* EMPTY */
+.empty{text-align:center;padding:48px 24px;color:var(--muted)}
+.empty svg{margin:0 auto 12px;opacity:0.3}
+/* DETAIL PANEL */
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.detail-item .dlabel{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:3px}
+.detail-item .dvalue{font-size:0.9rem;font-weight:600;color:var(--text)}
+/* PROFIT BOX */
+.profit-box{background:linear-gradient(135deg,var(--black),#1E293B);border-radius:12px;padding:20px;color:var(--white)}
+.profit-box .plabel{font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px}
+.profit-box .pvalue{font-size:1.4rem;font-weight:800;color:var(--green)}
+/* RESPONSIVE */
+@media(max-width:768px){
+  :root{--sidebar:0px}
+  .sidebar{transform:translateX(-220px)}
+  .sidebar.open{transform:translateX(0);width:220px}
+  .main{margin-left:0}
+  .hamburger{display:flex}
+  .grid-4{grid-template-columns:repeat(2,1fr)}
+  .grid-3{grid-template-columns:1fr}
+  .grid-2{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .search-wrap input{width:160px}
+  .detail-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .grid-4{grid-template-columns:1fr 1fr}
+  .stat-value{font-size:1.2rem}
+  .content{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo">Smart Design <span>AutoHub</span></div>
+  <div class="splash-tag">Driving Your Business Forward</div>
+  <div class="splash-cars">
+    <div class="splash-car">
+      <svg width="100" height="48" viewBox="0 0 100 48" fill="none">
+        <rect x="10" y="22" width="80" height="18" rx="4" fill="#2563EB"/>
+        <path d="M20 22 L28 10 L70 10 L80 22" fill="#1D4ED8"/>
+        <circle cx="25" cy="42" r="6" fill="#94A3B8"/><circle cx="25" cy="42" r="3" fill="#1E293B"/>
+        <circle cx="72" cy="42" r="6" fill="#94A3B8"/><circle cx="72" cy="42" r="3" fill="#1E293B"/>
+        <rect x="30" y="12" width="18" height="10" rx="2" fill="#93C5FD" opacity="0.6"/>
+        <rect x="52" y="12" width="16" height="10" rx="2" fill="#93C5FD" opacity="0.6"/>
+      </svg>
+    </div>
+    <div class="splash-car">
+      <svg width="110" height="52" viewBox="0 0 110 52" fill="none">
+        <rect x="5" y="24" width="100" height="22" rx="4" fill="#10B981"/>
+        <path d="M15 24 L25 10 L50 6 L85 10 L95 24" fill="#059669"/>
+        <rect x="0" y="28" width="110" height="6" rx="2" fill="#064E3B" opacity="0.3"/>
+        <circle cx="22" cy="47" r="5" fill="#94A3B8"/><circle cx="22" cy="47" r="2.5" fill="#1E293B"/>
+        <circle cx="88" cy="47" r="5" fill="#94A3B8"/><circle cx="88" cy="47" r="2.5" fill="#1E293B"/>
+        <rect x="28" y="12" width="16" height="11" rx="2" fill="#6EE7B7" opacity="0.6"/>
+        <rect x="48" y="12" width="30" height="11" rx="2" fill="#6EE7B7" opacity="0.6"/>
+      </svg>
+    </div>
+    <div class="splash-car">
+      <svg width="120" height="54" viewBox="0 0 120 54" fill="none">
+        <rect x="5" y="26" width="110" height="20" rx="3" fill="#D4AF37"/>
+        <rect x="5" y="18" width="70" height="12" rx="3" fill="#B8960C"/>
+        <rect x="75" y="20" width="40" height="18" rx="2" fill="#C9A227"/>
+        <circle cx="25" cy="48" r="6" fill="#94A3B8"/><circle cx="25" cy="48" r="3" fill="#1E293B"/>
+        <circle cx="95" cy="48" r="6" fill="#94A3B8"/><circle cx="95" cy="48" r="3" fill="#1E293B"/>
+        <rect x="10" y="19" width="20" height="10" rx="2" fill="#FDE68A" opacity="0.5"/>
+        <rect x="35" y="19" width="20" height="10" rx="2" fill="#FDE68A" opacity="0.5"/>
+      </svg>
+    </div>
+  </div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="name">Smart Design <span>AutoHub</span></div>
+      <div class="tag">Driving Your Business Forward</div>
+    </div>
+    <nav style="overflow-y:auto;flex:1">
+      <div class="nav-section">
+        <div class="nav-label">Overview</div>
+        <div class="nav-item active" onclick="navigate('dashboard',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </div>
+        <div class="nav-item" onclick="navigate('executive',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+          Executive Profit
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Inventory</div>
+        <div class="nav-item" onclick="navigate('inventory',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          Vehicle Inventory
+        </div>
+        <div class="nav-item" onclick="navigate('purchase',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Vehicle Purchase
+        </div>
+        <div class="nav-item" onclick="navigate('preparation',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          Preparation
+        </div>
+        <div class="nav-item" onclick="navigate('aging',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Stock Ageing
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Sales</div>
+        <div class="nav-item" onclick="navigate('sales',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Record Sale
+        </div>
+        <div class="nav-item" onclick="navigate('leads',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12 19.79 19.79 0 0 1 1.93 3.37 2 2 0 0 1 3.91 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          Lead Management
+        </div>
+        <div class="nav-item" onclick="navigate('performance',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Sales Performance
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">CRM</div>
+        <div class="nav-item" onclick="navigate('customers',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Customers
+        </div>
+        <div class="nav-item" onclick="navigate('tasks',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Tasks & Follow-ups
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Reports</div>
+        <div class="nav-item" onclick="navigate('reports',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Reports
+        </div>
+        <div class="nav-item" onclick="navigate('documents',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          Documents
+        </div>
+        <div class="nav-item" onclick="navigate('settings',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar">SA</div>
+      <div class="user-info">
+        <div class="uname">Super Admin</div>
+        <div class="urole">Administrator</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleSidebar()">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <span class="page-title" id="pageTitle">Dashboard</span>
+      </div>
+      <div class="topbar-right">
+        <div class="search-wrap">
+          <svg class="search-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="globalSearch" placeholder="Search vehicles, customers…" oninput="globalSearchFn(this.value)"/>
+        </div>
+        <div class="notif">
+          <button class="btn btn-secondary btn-sm" onclick="navigate('tasks',document.querySelector('.nav-item:nth-child(1)'))">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </button>
+          <div class="notif-dot"></div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openModal('addVehicle')">+ Add Vehicle</button>
+      </div>
+    </div>
+    <div class="content" id="pageContent"></div>
+  </main>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle"></span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA STORE
+// ============================================================
+const R = (n) => n == null ? '—' : 'R ' + Number(n).toLocaleString('en-ZA',{minimumFractionDigits:0,maximumFractionDigits:0});
+const pct = (n) => (n||0).toFixed(1) + '%';
+
+let vehicles = [
+  {id:'V001',reg:'CA 123-456',vin:'WBAJB9C51JB083456',make:'BMW',model:'3 Series',variant:'320i M Sport',year:2021,mileage:42000,colour:'Mineral White',fuel:'Petrol',trans:'Automatic',status:'Available',buyPrice:320000,repairs:8500,transport:2000,licensing:1200,prep:3500,retail:389000,purchaseDate:'2024-10-15',supplier:'Cape Auto Traders',salesperson:null,soldDate:null,soldPrice:null,days:72,notes:'Full service history. One owner.'},
+  {id:'V002',reg:'WP 456-789',vin:'SALGA2EE3HA123456',make:'Land Rover',model:'Discovery Sport',variant:'2.0D SE',year:2020,mileage:67000,colour:'Narvik Black',fuel:'Diesel',trans:'Automatic',status:'Available',buyPrice:480000,repairs:22000,transport:3500,licensing:1200,prep:5000,retail:569000,purchaseDate:'2024-09-20',supplier:'Prestige Motors JHB',salesperson:null,soldDate:null,soldPrice:null,days:97,notes:'New tyres fitted.'},
+  {id:'V003',reg:'GP 789-012',vin:'1HGBH41JXMN109186',make:'Toyota',model:'Hilux',variant:'2.8 GD-6 Legend',year:2022,mileage:31000,colour:'Silver Sky',fuel:'Diesel',trans:'Manual',status:'Sold',buyPrice:520000,repairs:5000,transport:2500,licensing:1200,prep:4000,retail:639000,purchaseDate:'2024-08-05',supplier:'Gauteng Fleet Sales',salesperson:'SP001',soldDate:'2024-11-12',soldPrice:625000,days:41,notes:'Under Toyota warranty.'},
+  {id:'V004',reg:'CA 321-654',vin:'WDD2130431A456789',make:'Mercedes-Benz',model:'C-Class',variant:'C200 AMG Line',year:2021,mileage:38000,colour:'Obsidian Black',fuel:'Petrol',trans:'Automatic',status:'Reserved',buyPrice:550000,repairs:12000,transport:2000,licensing:1200,prep:6000,retail:649000,purchaseDate:'2024-10-01',supplier:'Elite Auto Cape Town',salesperson:'SP002',soldDate:null,soldPrice:null,days:86,notes:'Panoramic sunroof. Burmester sound.'},
+  {id:'V005',reg:'WP 654-321',vin:'WAUZZZ4G9EN012345',make:'Audi',model:'Q5',variant:'2.0 TDI Quattro',year:2020,mileage:78000,colour:'Daytona Grey',fuel:'Diesel',trans:'Automatic',status:'In Workshop',buyPrice:460000,repairs:35000,transport:3000,licensing:1200,prep:7000,retail:569000,purchaseDate:'2024-11-01',supplier:'Direct Import',salesperson:null,soldDate:null,soldPrice:null,days:55,notes:'Timing chain replacement done.'},
+  {id:'V006',reg:'GP 111-222',vin:'VWVZZZ1KZ3W123456',make:'Volkswagen',model:'Polo Vivo',variant:'1.4 Trendline',year:2023,mileage:15000,colour:'Flash Red',fuel:'Petrol',trans:'Manual',status:'Available',buyPrice:180000,repairs:2000,transport:1500,licensing:1200,prep:2500,retail:219000,purchaseDate:'2024-11-10',supplier:'VW Fleet Cape Town',salesperson:null,soldDate:null,soldPrice:null,days:46,notes:'Demo vehicle.'},
+  {id:'V007',reg:'NCA 333-444',vin:'JSAFJB43V00123456',make:'Suzuki',model:'Jimny',variant:'1.5 GLX AllGrip',year:2023,mileage:8000,colour:'Jungle Green',fuel:'Petrol',trans:'Manual',status:'Sold',buyPrice:290000,repairs:1500,transport:2000,licensing:1200,prep:3000,retail:359000,purchaseDate:'2024-10-20',supplier:'Suzuki Direct',salesperson:'SP001',soldDate:'2024-11-25',soldPrice:355000,days:36,notes:'Rare unit.'},
+  {id:'V008',reg:'CA 777-888',vin:'SCFRMFAW8EGU12345',make:'Aston Martin',model:'Vantage',variant:'V8 Roadster',year:2019,mileage:22000,colour:'Quantum Silver',fuel:'Petrol',trans:'Automatic',status:'Available',buyPrice:1800000,repairs:45000,transport:8000,licensing:1200,prep:15000,retail:2190000,purchaseDate:'2024-09-15',supplier:'Luxury Imports SA',salesperson:null,soldDate:null,soldPrice:null,days:102,notes:'Exceptional condition.'},
+];
+
+let customers = [
+  {id:'C001',name:'James Koekemoer',email:'james.k@gmail.com',phone:'082 456 7890',address:'14 Blouberg Road, Cape Town',interests:'SUV, 4x4',notes:'Prefers diesel. Budget R650k max.',created:'2024-08-01'},
+  {id:'C002',name:'Sarah Naidoo',email:'s.naidoo@work.co.za',phone:'071 234 5678',address:'22 Umhlanga Ridge, Durban',interests:'Sedan, Luxury',notes:'Looking for C-Class or similar.',created:'2024-10-05'},
+  {id:'C003',name:'Pieter van der Merwe',email:'pietervm@webmail.co.za',phone:'083 789 0123',address:'5 Stellenbosch Ave, Paarl',interests:'Pickup, Bakkie',notes:'Farm use.',created:'2024-09-15'},
+  {id:'C004',name:'Nomsa Dlamini',email:'nomsa.d@company.co.za',phone:'076 345 6789',address:'88 Sandton Drive, Johannesburg',interests:'Hatchback, Economy',notes:'First-time buyer.',created:'2024-11-01'},
+  {id:'C005',name:'Marco Ferreira',email:'marco.f@gmail.com',phone:'084 567 8901',address:'3 Seapoint Blvd, Cape Town',interests:'Sports, Convertible',notes:'Cash buyer. Interested in Aston Martin.',created:'2024-11-20'},
+];
+
+let staff = [
+  {id:'SP001',name:'Thabo Molefe',role:'Sales Consultant',email:'thabo@autohub.co.za',phone:'082 111 2222',active:true,leads:8,closed:12,monthlyVal:980000,profit:156000,commission:0.05,rate:68},
+  {id:'SP002',name:'Anelize Botha',role:'Sales Consultant',email:'anelize@autohub.co.za',phone:'071 333 4444',active:true,leads:5,closed:9,monthlyVal:720000,profit:118000,commission:0.05,rate:62},
+  {id:'SP003',name:'Sipho Khumalo',role:'Sales Manager',email:'sipho@autohub.co.za',phone:'083 555 6666',active:true,leads:3,closed:4,monthlyVal:310000,profit:52000,commission:0.03,rate:57},
+];
+
+let leads = [
+  {id:'L001',customer:'C002',salesperson:'SP002',vehicle:'V004',source:'Facebook',status:'Negotiating',created:'2024-11-01',lastContact:'2024-11-25',notes:'Interested in C200. Test drive done.'},
+  {id:'L002',customer:'C004',salesperson:'SP001',vehicle:'V006',source:'Walk-In',status:'Finance Approved',created:'2024-11-15',lastContact:'2024-11-28',notes:'Finance approved R200k.'},
+  {id:'L003',customer:'C005',salesperson:'SP002',vehicle:'V008',source:'WhatsApp',status:'Test Drive Scheduled',created:'2024-11-20',lastContact:'2024-11-26',notes:'Test drive booked Saturday.'},
+  {id:'L004',customer:'C001',salesperson:'SP001',vehicle:'V002',source:'AutoTrader',status:'Contacted',created:'2024-11-22',lastContact:'2024-11-23',notes:'Enquired Discovery Sport.'},
+  {id:'L005',customer:'C003',salesperson:'SP003',vehicle:null,source:'Referral',status:'New',created:'2024-11-28',lastContact:'2024-11-28',notes:'Looking for another bakkie.'},
+];
+
+let tasks = [
+  {id:'T001',title:'Call Sarah re: C200 price negotiation',type:'Customer Call',assignee:'SP002',due:'2024-11-29',priority:'High',done:false},
+  {id:'T002',title:'Submit finance docs for Nomsa',type:'Finance Update',assignee:'SP001',due:'2024-11-28',priority:'High',done:false},
+  {id:'T003',title:'Confirm Aston Martin test drive with Marco',type:'Test Drive',assignee:'SP002',due:'2024-11-30',priority:'Medium',done:false},
+  {id:'T004',title:'Send Discovery Sport quotation to James',type:'Quotation',assignee:'SP001',due:'2024-11-29',priority:'Medium',done:false},
+  {id:'T005',title:'Follow up re: bakkie referral',type:'Customer Call',assignee:'SP003',due:'2024-11-29',priority:'Low',done:false},
+];
+
+let prepData = {
+  V001:{mechanical:true,valet:true,licensing:true,roadworthy:false,photography:true,websiteListing:false},
+  V002:{mechanical:true,valet:false,licensing:true,roadworthy:true,photography:false,websiteListing:false},
+  V005:{mechanical:false,valet:false,licensing:false,roadworthy:false,photography:false,websiteListing:false},
+  V006:{mechanical:true,valet:true,licensing:true,roadworthy:true,photography:true,websiteListing:true},
+  V008:{mechanical:true,valet:true,licensing:true,roadworthy:true,photography:true,websiteListing:false},
+};
+
+let auditLog = [];
+let currentPage = 'dashboard';
+let inventoryFilter = 'All';
+
+// Helpers
+const inv = (v) => (v.buyPrice||0)+(v.repairs||0)+(v.transport||0)+(v.licensing||0)+(v.prep||0);
+const gp = (v) => (v.soldPrice||v.retail) - inv(v);
+const gpPct = (v) => ((gp(v)/(v.soldPrice||v.retail||1))*100).toFixed(1);
+const getCust = (id) => customers.find(c=>c.id===id)||{name:'—'};
+const getStaff = (id) => staff.find(s=>s.id===id)||{name:'—'};
+const getVeh = (id) => vehicles.find(v=>v.id===id);
+const statusColor = {Available:'#10B981',Reserved:'#F59E0B',Sold:'#D4AF37','In Workshop':'#2563EB','Awaiting Delivery':'#8B5CF6'};
+const leadColor = {New:'#10B981',Contacted:'#2563EB','Test Drive Scheduled':'#8B5CF6',Negotiating:'#F59E0B','Finance Approved':'#06B6D4',Sold:'#D4AF37',Lost:'#EF4444'};
+const agingColor = (d)=>d<=30?'#10B981':d<=60?'#F59E0B':d<=90?'#EF4444':'#7F1D1D';
+const prepPct = (id)=>{
+  const p=prepData[id];if(!p)return 0;
+  const f=['mechanical','valet','licensing','roadworthy','photography','websiteListing'];
+  return Math.round(f.filter(k=>p[k]).length/f.length*100);
+};
+const nextId = (arr,prefix)=>{
+  const nums=arr.map(x=>parseInt(x.id.replace(prefix,''))||0);
+  return prefix+(Math.max(0,...nums)+1).toString().padStart(3,'0');
+};
+const log = (action,detail)=>{
+  auditLog.unshift({user:'Super Admin',date:new Date().toLocaleDateString(),time:new Date().toLocaleTimeString(),action,detail});
+};
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function navigate(page, el){
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const titles={dashboard:'Dashboard',executive:'Executive Profit Dashboard',inventory:'Vehicle Inventory',purchase:'Vehicle Purchase',preparation:'Vehicle Preparation',aging:'Stock Ageing',sales:'Record Sale',leads:'Lead Management',performance:'Sales Performance',customers:'Customer Management',tasks:'Tasks & Follow-ups',reports:'Reports',documents:'Documents',settings:'Settings'};
+  document.getElementById('pageTitle').textContent = titles[page]||page;
+  const c=document.getElementById('pageContent');
+  c.innerHTML='';
+  const fn={dashboard:renderDashboard,executive:renderExecutive,inventory:renderInventory,purchase:renderPurchase,preparation:renderPreparation,aging:renderAging,sales:renderSales,leads:renderLeads,performance:renderPerformance,customers:renderCustomers,tasks:renderTasks,reports:renderReports,documents:renderDocuments,settings:renderSettings};
+  if(fn[page]) fn[page]();
+  if(window.innerWidth<768) document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ============================================================
+// MODALS
+// ============================================================
+function openModal(type, data){
+  const o=document.getElementById('modalOverlay');
+  const modals={
+    addVehicle:()=>vehicleModal(null),
+    editVehicle:()=>vehicleModal(data),
+    addCustomer:()=>customerModal(null),
+    editCustomer:()=>customerModal(data),
+    addLead:()=>leadModal(null),
+    viewVehicle:()=>viewVehicleModal(data),
+    addSale:()=>saleModal(data),
+    addTask:()=>taskModal(),
+    viewAudit:()=>auditModal(),
+  };
+  if(modals[type]) modals[type]();
+  o.classList.add('open');
+}
+function closeModal(e){
+  if(!e||e.target===document.getElementById('modalOverlay')){
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard(){
+  const avail=vehicles.filter(v=>v.status==='Available').length;
+  const sold=vehicles.filter(v=>v.status==='Sold').length;
+  const reserved=vehicles.filter(v=>v.status==='Reserved').length;
+  const inprep=vehicles.filter(v=>v.status==='In Workshop').length;
+  const totalStock=vehicles.filter(v=>v.status!=='Sold').reduce((a,v)=>a+inv(v),0);
+  const totalRetail=vehicles.filter(v=>v.status!=='Sold').reduce((a,v)=>a+v.retail,0);
+  const potentialGP=totalRetail-totalStock;
+  const monthlyRev=vehicles.filter(v=>v.soldDate&&v.soldDate.startsWith('2024-11')).reduce((a,v)=>a+(v.soldPrice||0),0);
+  const monthlyProfit=vehicles.filter(v=>v.soldDate&&v.soldDate.startsWith('2024-11')).reduce((a,v)=>a+gp(v),0);
+  const openLeads=leads.filter(l=>l.status!=='Sold'&&l.status!=='Lost').length;
+  const pendingDeals=leads.filter(l=>['Negotiating','Finance Approved'].includes(l.status)).length;
+  const closedDeals=leads.filter(l=>l.status==='Sold').length;
+  const salesHistory=[{m:'Jun',r:780000,p:112000},{m:'Jul',r:920000,p:138000},{m:'Aug',r:650000,p:89000},{m:'Sep',r:1100000,p:168000},{m:'Oct',r:980000,p:151000},{m:'Nov',r:monthlyRev||1290000,p:monthlyProfit||208000}];
+  const maxR=Math.max(...salesHistory.map(x=>x.r));
+
+  document.getElementById('pageContent').innerHTML=`
+  <div class="grid-4" style="margin-bottom:20px">
+    <div class="stat-card blue"><div class="stat-label">Total Vehicles</div><div class="stat-value">${vehicles.length}</div><div class="stat-sub">In system</div><div class="stat-icon">🚗</div></div>
+    <div class="stat-card green"><div class="stat-label">Available</div><div class="stat-value">${avail}</div><div class="stat-sub">Ready to sell</div></div>
+    <div class="stat-card gold"><div class="stat-label">Sold</div><div class="stat-value">${sold}</div><div class="stat-sub">All time</div></div>
+    <div class="stat-card amber"><div class="stat-label">Reserved</div><div class="stat-value">${reserved}</div><div class="stat-sub">${inprep} in workshop</div></div>
+  </div>
+  <div class="grid-4" style="margin-bottom:20px">
+    <div class="stat-card blue"><div class="stat-label">Total Stock Value</div><div class="stat-value sm">${R(totalStock)}</div><div class="stat-sub">Investment</div></div>
+    <div class="stat-card green"><div class="stat-label">Total Retail Value</div><div class="stat-value sm">${R(totalRetail)}</div><div class="stat-sub">If all sold at retail</div></div>
+    <div class="stat-card gold"><div class="stat-label">Potential Gross Profit</div><div class="stat-value sm">${R(potentialGP)}</div><div class="stat-sub">On current stock</div></div>
+    <div class="stat-card amber"><div class="stat-label">Monthly Revenue</div><div class="stat-value sm">${R(monthlyRev||1290000)}</div><div class="stat-sub">Profit: ${R(monthlyProfit||208000)}</div></div>
+  </div>
+  <div class="grid-3" style="margin-bottom:20px">
+    <div class="card" style="grid-column:span 2">
+      <div class="card-header"><div class="card-title">Revenue vs Profit — Last 6 Months</div></div>
+      <div class="bar-chart">
+        ${salesHistory.map(m=>`
+        <div class="bar-col">
+          <div class="bar-val">${R(m.r).replace('R ','')}</div>
+          <div class="bar" style="height:${Math.round((m.r/maxR)*90)}px;background:var(--blue)"></div>
+          <div class="bar" style="height:${Math.round((m.p/maxR)*90)}px;background:var(--green);margin-top:2px"></div>
+          <div class="bar-label">${m.m}</div>
+        </div>`).join('')}
+      </div>
+      <div style="display:flex;gap:16px;margin-top:12px">
+        <span style="font-size:0.72rem;color:var(--muted)"><span style="display:inline-block;width:10px;height:10px;background:var(--blue);border-radius:2px;margin-right:4px"></span>Revenue</span>
+        <span style="font-size:0.72rem;color:var(--muted)"><span style="display:inline-block;width:10px;height:10px;background:var(--green);border-radius:2px;margin-right:4px"></span>Profit</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Staff Overview</div></div>
+      <div class="stat-label">Active Sales Staff</div><div style="font-size:1.4rem;font-weight:800;margin-bottom:12px">${staff.filter(s=>s.active).length}</div>
+      <div class="stat-label">Open Leads</div><div style="font-size:1.4rem;font-weight:800;margin-bottom:12px">${openLeads}</div>
+      <div class="stat-label">Pending Deals</div><div style="font-size:1.4rem;font-weight:800;margin-bottom:12px">${pendingDeals}</div>
+      <div class="stat-label">Closed Deals</div><div style="font-size:1.4rem;font-weight:800">${closedDeals}</div>
+    </div>
+  </div>
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Lead Pipeline</div><button class="btn btn-primary btn-sm" onclick="openModal('addLead')">+ Lead</button></div>
+      <div class="pipeline">
+        ${['New','Contacted','Test Drive Scheduled','Negotiating','Finance Approved'].map(s=>`
+        <div class="pipeline-stage">
+          <div class="stage-count" style="color:${leadColor[s]}">${leads.filter(l=>l.status===s).length}</div>
+          <div class="stage-name">${s.replace(' ','\n')}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Quick Actions</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button class="btn btn-primary" onclick="navigate('inventory',null);setTimeout(()=>openModal('addVehicle'),100)">+ Add Vehicle</button>
+        <button class="btn btn-secondary" onclick="navigate('purchase',null)">Record Purchase</button>
+        <button class="btn btn-secondary" onclick="openModal('addCustomer')">Add Customer</button>
+        <button class="btn btn-secondary" onclick="openModal('addLead')">Create Lead</button>
+        <button class="btn btn-secondary" onclick="navigate('reports',null)">Generate Report</button>
+        <button class="btn btn-secondary" onclick="navigate('tasks',null)">View Tasks</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Recent Activity</div></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Vehicle</th><th>Status</th><th>Days In Stock</th><th>Retail Price</th><th>Gross Profit</th><th>Action</th></tr></thead>
+        <tbody>
+          ${vehicles.slice(0,6).map(v=>`
+          <tr>
+            <td><strong>${v.year} ${v.make} ${v.model}</strong><br><small style="color:var(--muted)">${v.reg}</small></td>
+            <td><span class="badge" style="background:${statusColor[v.status]}22;color:${statusColor[v.status]}"><span class="status-dot" style="background:${statusColor[v.status]}"></span>${v.status}</span></td>
+            <td><span style="color:${agingColor(v.days)};font-weight:600">${v.days}d</span></td>
+            <td>${R(v.retail)}</td>
+            <td style="color:var(--green);font-weight:600">${R(gp(v))}</td>
+            <td><button class="btn btn-secondary btn-sm" onclick="openModal('viewVehicle','${v.id}')">View</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// EXECUTIVE PROFIT
+// ============================================================
+function renderExecutive(){
+  const active=vehicles.filter(v=>v.status!=='Sold');
+  const sold=vehicles.filter(v=>v.status==='Sold');
+  const totalInv=active.reduce((a,v)=>a+inv(v),0);
+  const totalRetail=active.reduce((a,v)=>a+v.retail,0);
+  const potGP=totalRetail-totalInv;
+  const monthlyRev=sold.filter(v=>v.soldDate&&v.soldDate.startsWith('2024-11')).reduce((a,v)=>a+(v.soldPrice||0),0);
+  const monthlyP=sold.filter(v=>v.soldDate&&v.soldDate.startsWith('2024-11')).reduce((a,v)=>a+gp(v),0);
+  const annualEst=monthlyP*12;
+  const topSP=staff.sort((a,b)=>b.profit-a.profit)[0];
+  const mostProfitable=sold.sort((a,b)=>gp(b)-gp(a))[0];
+  const fastest=sold.sort((a,b)=>a.days-b.days)[0];
+  const slowest=active.sort((a,b)=>b.days-a.days)[0];
+
+  document.getElementById('pageContent').innerHTML=`
+  <div class="profit-box" style="margin-bottom:20px">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+      <div><div class="plabel">Total Inventory Investment</div><div class="pvalue">${R(totalInv)}</div></div>
+      <div><div class="plabel">Total Retail Value</div><div style="font-size:1.4rem;font-weight:800;color:#93C5FD">${R(totalRetail)}</div></div>
+      <div><div class="plabel">Potential Gross Profit</div><div class="pvalue">${R(potGP)}</div></div>
+      <div><div class="plabel">Monthly Revenue</div><div style="font-size:1.4rem;font-weight:800;color:#FDE68A">${R(monthlyRev||1290000)}</div></div>
+      <div><div class="plabel">Monthly Profit</div><div class="pvalue">${R(monthlyP||208000)}</div></div>
+      <div><div class="plabel">Annual Profit (Est.)</div><div class="pvalue">${R(annualEst||2496000)}</div></div>
+    </div>
+  </div>
+  <div class="grid-4" style="margin-bottom:20px">
+    <div class="stat-card gold">
+      <div class="stat-label">🏆 Top Salesperson</div>
+      <div style="font-size:1rem;font-weight:800;color:var(--text)">${topSP.name}</div>
+      <div class="stat-sub">${R(topSP.profit)} gross profit</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">💰 Most Profitable</div>
+      <div style="font-size:0.9rem;font-weight:800">${mostProfitable?mostProfitable.make+' '+mostProfitable.model:'—'}</div>
+      <div class="stat-sub">${R(mostProfitable?gp(mostProfitable):0)}</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">⚡ Fastest Selling</div>
+      <div style="font-size:0.9rem;font-weight:800">${fastest?fastest.make+' '+fastest.model:'—'}</div>
+      <div class="stat-sub">${fastest?fastest.days+' days':''}</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-label">🐢 Slowest Moving</div>
+      <div style="font-size:0.9rem;font-weight:800">${slowest?slowest.make+' '+slowest.model:'—'}</div>
+      <div class="stat-sub">${slowest?slowest.days+' days in stock':''}</div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Profit Per Vehicle Sold</div></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Vehicle</th><th>Cost</th><th>Sold</th><th>GP</th><th>ROI</th></tr></thead>
+          <tbody>
+            ${sold.map(v=>`<tr>
+              <td><strong>${v.make} ${v.model}</strong></td>
+              <td>${R(inv(v))}</td>
+              <td>${R(v.soldPrice)}</td>
+              <td style="color:var(--green);font-weight:600">${R(gp(v))}</td>
+              <td style="color:var(--blue);font-weight:600">${((gp(v)/inv(v))*100).toFixed(1)}%</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Staff Profit Contribution</div></div>
+      ${staff.map((s,i)=>`
+      <div class="leader-row">
+        <div class="leader-rank ${i===0?'gold':i===1?'silver':'bronze'}">${i+1}</div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:0.85rem">${s.name}</div>
+          <div style="font-size:0.72rem;color:var(--muted)">${s.role} · ${s.closed} deals · ${s.rate}% conversion</div>
+          <div class="progress-bar" style="margin-top:6px">
+            <div class="progress-fill" style="width:${Math.round((s.profit/staff[0].profit)*100)}%;background:${i===0?'var(--gold)':i===1?'var(--blue)':'var(--steel)'}"></div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:700;color:var(--green);font-size:0.85rem">${R(s.profit)}</div>
+          <div style="font-size:0.7rem;color:var(--muted)">${R(s.profit*s.commission)} commission</div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// INVENTORY
+// ============================================================
+function renderInventory(){
+  const filters=['All','Available','Reserved','Sold','In Workshop'];
+  const filtered=inventoryFilter==='All'?vehicles:vehicles.filter(v=>v.status===inventoryFilter);
+  document.getElementById('pageContent').innerHTML=`
+  <div class="section-header">
+    <div><div class="section-title">Vehicle Inventory</div><div class="section-sub">${filtered.length} vehicles shown</div></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary btn-sm" onclick="toggleInventoryView()">⊞ Grid / ☰ List</button>
+      <button class="btn btn-primary" onclick="openModal('addVehicle')">+ Add Vehicle</button>
+    </div>
+  </div>
+  <div class="filter-row">${filters.map(f=>`<button class="filter-btn ${inventoryFilter===f?'active':''}" onclick="setFilter('${f}')">${f}</button>`).join('')}</div>
+  <div id="inventoryGrid" class="grid-3">
+    ${filtered.map(v=>vehicleCard(v)).join('')}
+  </div>`;
+}
+
+let inventoryViewGrid = true;
+function toggleInventoryView(){
+  inventoryViewGrid=!inventoryViewGrid;
+  const g=document.getElementById('inventoryGrid');
+  if(inventoryViewGrid){
+    g.className='grid-3';
+    g.innerHTML=vehicles.filter(v=>inventoryFilter==='All'||v.status===inventoryFilter).map(v=>vehicleCard(v)).join('');
+  } else {
+    g.className='';
+    g.innerHTML=`<div class="card"><div class="table-wrap"><table>
+      <thead><tr><th>ID</th><th>Vehicle</th><th>Reg</th><th>Year</th><th>KM</th><th>Status</th><th>Cost</th><th>Retail</th><th>GP</th><th>Days</th><th>Action</th></tr></thead>
+      <tbody>${vehicles.filter(v=>inventoryFilter==='All'||v.status===inventoryFilter).map(v=>`
+      <tr>
+        <td style="color:var(--muted);font-size:0.75rem">${v.id}</td>
+        <td><strong>${v.make} ${v.model}</strong><br><small style="color:var(--muted)">${v.variant}</small></td>
+        <td>${v.reg}</td><td>${v.year}</td>
+        <td>${Number(v.mileage).toLocaleString()} km</td>
+        <td><span class="badge" style="background:${statusColor[v.status]}22;color:${statusColor[v.status]}">${v.status}</span></td>
+        <td>${R(inv(v))}</td><td>${R(v.retail)}</td>
+        <td style="color:var(--green);font-weight:600">${R(gp(v))}</td>
+        <td style="color:${agingColor(v.days)};font-weight:600">${v.days}d</td>
+        <td style="display:flex;gap:6px">
+          <button class="btn btn-secondary btn-sm" onclick="openModal('viewVehicle','${v.id}')">View</button>
+          <button class="btn btn-secondary btn-sm" onclick="openModal('editVehicle','${v.id}')">Edit</button>
+        </td>
+      </tr>`).join('')}</tbody>
+    </table></div></div>`;
+  }
+}
+
+function vehicleCard(v){
+  const carSVG=`<svg width="120" height="60" viewBox="0 0 120 60" fill="none">
+    <rect x="10" y="28" width="100" height="22" rx="4" fill="#2563EB" opacity="0.7"/>
+    <path d="M20 28 L32 14 L88 14 L100 28" fill="#1D4ED8" opacity="0.8"/>
+    <circle cx="30" cy="52" r="6" fill="#94A3B8"/><circle cx="30" cy="52" r="3" fill="#0F172A"/>
+    <circle cx="90" cy="52" r="6" fill="#94A3B8"/><circle cx="90" cy="52" r="3" fill="#0F172A"/>
+    <rect x="34" y="16" width="20" height="12" rx="2" fill="#93C5FD" opacity="0.4"/>
+    <rect x="58" y="16" width="26" height="12" rx="2" fill="#93C5FD" opacity="0.4"/>
+  </svg>`;
+  return `<div class="vehicle-card" onclick="openModal('viewVehicle','${v.id}')">
+    <div class="vehicle-img">${carSVG}<div class="vehicle-status"><span class="badge" style="background:${statusColor[v.status]};color:white;font-size:0.65rem">${v.status}</span></div></div>
+    <div class="vehicle-info">
+      <div class="vehicle-name">${v.year} ${v.make} ${v.model}</div>
+      <div class="vehicle-variant">${v.variant}</div>
+      <div class="vehicle-price">${R(v.status==='Sold'?v.soldPrice:v.retail)}</div>
+      <div class="vehicle-meta">
+        <span>📍 ${Number(v.mileage).toLocaleString()} km</span>
+        <span>⛽ ${v.fuel}</span>
+        <span>⏱ ${v.days}d</span>
+      </div>
+      <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:0.75rem;color:var(--green);font-weight:600">GP: ${R(gp(v))}</span>
+        <span style="font-size:0.7rem;color:var(--muted)">${v.reg}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function setFilter(f){
+  inventoryFilter=f;
+  renderInventory();
+}
+
+// ============================================================
+// PURCHASE
+// ============================================================
+function renderPurchase(){
+  document.getElementById('pageContent').innerHTML=`
+  <div class="section-header">
+    <div><div class="section-title">Vehicle Purchase</div><div class="section-sub">Capture all purchase costs to calculate true investment</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">New Purchase Entry</div></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Seller Name</label><input class="form-control" id="pu_seller" placeholder="Seller full name"/></div>
+        <div class="form-group"><label class="form-label">Seller Contact</label><input class="form-control" id="pu_contact" placeholder="Phone / email"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Make</label><input class="form-control" id="pu_make" placeholder="e.g. Toyota"/></div>
+        <div class="form-group"><label class="form-label">Model</label><input class="form-control" id="pu_model" placeholder="e.g. Hilux"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Year</label><input class="form-control" id="pu_year" type="number" placeholder="2022"/></div>
+        <div class="form-group"><label class="form-label">Registration</label><input class="form-control" id="pu_reg" placeholder="CA 123-456"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">VIN Number</label><input class="form-control" id="pu_vin" placeholder="17-character VIN"/></div>
+      <div style="background:var(--bg);border-radius:8px;padding:16px;margin-bottom:16px">
+        <div style="font-size:0.82rem;font-weight:700;margin-bottom:12px;color:var(--text)">💰 Cost Breakdown</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Purchase Price (R)</label><input class="form-control" id="pu_price" type="number" placeholder="0" oninput="calcPurchase()"/></div>
+          <div class="form-group"><label class="form-label">Repairs (R)</label><input class="form-control" id="pu_repairs" type="number" placeholder="0" oninput="calcPurchase()"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Transport (R)</label><input class="form-control" id="pu_transport" type="number" placeholder="0" oninput="calcPurchase()"/></div>
+          <div class="form-group"><label class="form-label">Licensing (R)</label><input class="form-control" id="pu_lic" type="number" placeholder="1200" oninput="calcPurchase()"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Preparation (R)</label><input class="form-control" id="pu_prep" type="number" placeholder="0" oninput="calcPurchase()"/></div>
+      </div>
+      <div id="pu_calc" style="background:linear-gradient(135deg,var(--black),#1E293B);border-radius:8px;padding:16px;color:white;margin-bottom:16px">
+        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px">Actual Vehicle Cost</div>
+        <div id="pu_total" style="font-size:2rem;font-weight:800;color:var(--green)">R 0</div>
+        <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">Based on costs entered above</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Retail Price (R)</label><input class="form-control" id="pu_retail" type="number" placeholder="0" oninput="calcPurchase()"/></div>
+        <div id="pu_gp_box" class="form-group"><label class="form-label">Projected Gross Profit</label><div id="pu_gp" style="padding:10px 14px;background:var(--bg);border-radius:8px;font-weight:700;color:var(--green)">R 0</div></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="savePurchase()">Save Purchase & Add to Inventory</button>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Recent Purchases</div></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Vehicle</th><th>Cost</th><th>Retail</th><th>GP</th><th>Date</th></tr></thead>
+          <tbody>
+            ${vehicles.slice().sort((a,b)=>new Date(b.purchaseDate)-new Date(a.purchaseDate)).slice(0,8).map(v=>`
+            <tr>
+              <td><strong>${v.make} ${v.model}</strong><br><small style="color:var(--muted)">${v.variant}</small></td>
+              <td>${R(inv(v))}</td><td>${R(v.retail)}</td>
+              <td style="color:var(--green);font-weight:600">${R(gp(v))}</td>
+              <td style="color:var(--muted);font-size:0.75rem">${v.purchaseDate}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+function calcPurchase(){
+  const p=+document.getElementById('pu_price').value||0;
+  const r=+document.getElementById('pu_repairs').value||0;
+  const t=+document.getElementById('pu_transport').value||0;
+  const l=+document.getElementById('pu_lic').value||0;
+  const pr=+document.getElementById('pu_prep').value||0;
+  const total=p+r+t+l+pr;
+  const retail=+document.getElementById('pu_retail').value||0;
+  document.getElementById('pu_total').textContent=R(total);
+  document.getElementById('pu_gp').textContent=R(retail-total);
+  document.getElementById('pu_gp').style.color=(retail-total)>0?'var(--green)':'var(--red)';
+}
+
+function savePurchase(){
+  const make=document.getElementById('pu_make').value;
+  const model=document.getElementById('pu_model').value;
+  if(!make||!model){alert('Please enter at least Make and Model.');return;}
+  const newV={
+    id:nextId(vehicles,'V'),
+    reg:document.getElementById('pu_reg').value||'TBA',
+    vin:document.getElementById('pu_vin').value||'TBA',
+    make,model,variant:'',
+    year:+document.getElementById('pu_year').value||new Date().getFullYear(),
+    mileage:0,colour:'',fuel:'',trans:'',
+    status:'Available',
+    buyPrice:+document.getElementById('pu_price').value||0,
+    repairs:+document.getElementById('pu_repairs').value||0,
+    transport:+document.getElementById('pu_transport').value||0,
+    licensing:+document.getElementById('pu_lic').value||0,
+    prep:+document.getElementById('pu_prep').value||0,
+    retail:+document.getElementById('pu_retail').value||0,
+    purchaseDate:new Date().toISOString().split('T')[0],
+    supplier:document.getElementById('pu_seller').value||'',
+    salesperson:null,soldDate:null,soldPrice:null,days:0,notes:''
+  };
+  vehicles.push(newV);
+  log('Vehicle Purchased',`${newV.make} ${newV.model} added — Cost: ${R(inv(newV))}`);
+  alert(`✅ ${newV.make} ${newV.model} added to inventory!\nID: ${newV.id}`);
+  renderPurchase();
+}
+
+// ============================================================
+// PREPARATION
+// ============================================================
+function renderPreparation(){
+  const prepVehicles=vehicles.filter(v=>v.status!=='Sold');
+  const steps=['mechanical','valet','licensing','roadworthy','photography','websiteListing'];
+  const stepLabels={mechanical:'Mechanical Inspection',valet:'Valet & Clean',licensing:'Licensing',roadworthy:'Roadworthy',photography:'Photography',websiteListing:'Website Listing'};
+  document.getElementById('pageContent').innerHTML=`
+  <div class="section-header">
+    <div><div class="section-title">Vehicle Preparation Tracker</div></div>
+  </div>
+  ${prepVehicles.map(v=>{
+    const p=prepData[v.id]||{};
+    const pct=prepPct(v.id);
+    return`<div class="card" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+        <div>
+          <div style="font-weight:700;font-size:0.95rem">${v.year} ${v.make} ${v.model} — ${v.reg}</div>
+          <div style="font-size:0.75rem;color:var(--muted)">${v.variant} · ${v.colour}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="text-align:right">
+            <div style="font-size:1.4rem;font-weight:800;color:${pct===100?'var(--green)':pct>50?'var(--amber)':'var(--red)'}">${pct}%</div>
+            <div style="font-size:0.65rem;color:var(--muted)">Complete</div>
+          </div>
+          <div style="width:80px">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:${pct}%;background:${pct===100?'var(--green)':pct>50?'var(--amber)':'var(--red)'}"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      ${steps.map(s=>`
+      <div class="prep-item">
+        <span style="font-size:0.85rem;color:var(--text)">${stepLabels[s]}</span>
+        <button class="prep-toggle ${p[s]?'on':'off'}" onclick="togglePrep('${v.id}','${s}')"></button>
+      </div>`).join('')}
+    </div>`;
+  }).join('')}`;
+}
+
+function togglePrep(vid,step){
+  if(!prepData[vid]) prepData[vid]={};
+  prepData[vid][step]=!prepData[vid][step];
+  log('Prep Updated',`${vid} — ${step}: ${prepData[vid][step]?'Done':'Undone'}`);
+  renderPreparation();
+}
+
+// ============================================================
+// AGING
+// ============================================================
+function renderAging(){
+  const cats=[{label:'0–30 Days',min:0,max:30,color:'#10B981'},{label:'31–60 Days',min:31,max:60,color:'#F59E0B'},{label:'61–90 Days',min:61,max:90,color:'#EF4444'},{label:'90+ Days',min:91,max:9999,color:'#7F1D1D'}];
+  const active=vehicles.filter(v=>v.status!=='Sold');
+  document.getElementById('pageContent').innerHTML=`
+  <div class="section-header"><div class="section-title">Stock Ageing</div></div>
+  <div class="grid-4" style="margin-bottom:20px">
+    ${cats.map(c=>{
+      const n=active.filter(v=>v.days>=c.min&&v.days<=c.max).length;
+      return`<div class="stat-card" style="border-top:3px solid ${c.color}">
+        <div class="stat-label">${c.label}</div>
+        <div class="stat-value" style="color:${c.color}">${n}</div>
+        <div class="stat-sub">vehicles</div>
+      </div>`;
+    }).join('')}
+  </div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header"><div class="card-title">Ageing Overview</div></div>
+    ${cats.map(c=>{
+      const n=active.filter(v=>v.days>=c.min&&v.days<=c.max).length;
+      const pct=active.length?Math.round((n/active.length)*100):0;
+      return`<div class="aging-row">
+        <div class="aging-label" style="font-size:0.78rem">${c.label}</div>
+        <div class="aging-bar"><div class="aging-fill" style="width:${pct}%;background:${c.color}"></div></div>
+        <div class="aging-count">${n}</div>
+      </div>`;
+    }).join('')}
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Stock Detail</div></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Vehicle</th><th>Reg</th><th>Status</th><th>Investment</th><th>Retail</th><th>Days In Stock</th><th>Alert</th></tr></thead>
+        <tbody>
+          ${active.sort((a,b)=>b.days-a.days).map(v=>`
+          <tr>
+            <td><strong>${v.year} ${v.make} ${v.model}</strong><br><small style="color:var(--muted)">${v.variant}</small></td>
+            <td>${v.reg}</td>
+            <td><span class="badge" style="background:${statusColor[v.status]}22;color:${statusColor[v.status]}">${v.status}</span></td>
+            <td>${R(inv(v))}</td><td>${R(v.retail)}</td>
+            <td><span style="font-weight:700;color:${agingColor(v.days)}">${v.days} days</span></td>
+            <td>${v.days>90?'<span class="badge" style="background:#FEE2E2;color:#DC2626">⚠️ Action Required</span>':v.days>60?'<span class="badge" style="background:#FEF3C7;color:#92400E">Review</span>':'<span style="color:var(--muted);font-size:0.75rem">OK</span>'}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// SALES
+// ============================================================
+function renderSales(){
+  const avail=vehicles.filter(v=>v.status==='Available'||v.status==='Reserved');
+  document.getElementById('pageContent').innerHTML=`
+  <div class="section-header"><div class="section-title">Record Sale</div></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">New Sale Entry</div></div>
+      <div class="form-group"><label class="form-label">Select Vehicle</label>
+        <select class="form-control" id="sl_vehicle" onchange="loadSaleVehicle()">
+          <option value="">— Select vehicle —</option>
+          ${avail.map(v=>`<option value="${v.id}">${v.year} ${v.make} ${v.model} — ${v.reg} (${R(v.retail)})</option>`).join('')}
+        </select>
+      </div>
+      <div id="sl_vdetail" style="display:none;background:var(--bg);border-radius:8px;padding:12px;margin-bottom:16px;font-size:0.82rem">
+        <div id="sl_vinfo"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Buyer Name</label><input class="form-control" id="sl_buyer" placeholder="Full name"/></div>
+        <div class="form-group"><label class="form-label">Buyer Phone</label><input class="form-control" id="sl_phone" placeholder="Cell number"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Sale Price (R)</label><input class="form-control" id="sl_price" type="number" oninput="calcSale()"/></div>
+        <div class="form-group"><label class="form-label">Deposit (R)</label><input class="form-control" id="sl_deposit" type="number" placeholder="0"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Finance Institution</label><input class="form-control" id="sl_finance" placeholder="e.g. FNB, Wesbank, Cash"/></div>
+        <div class="form-group"><label class="form-label">Salesperson</label>
+          <select class="form-control" id="sl_sp">
+            <option value="">Select salesperson</option>
+            ${staff.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Sale Date</label><input class="form-control" id="sl_date" type="date" value="${new Date().toISOString().split('T')[0]}"/></div>
+      <div id="sl_calc" style="display:none;background:linear-gradient(135deg,var(--black),#1E293B);border-radius:8px;padding:16px;color:white;margin-bottom:16px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+          <div><div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase">Gross Profit</div><div id="sl_gp" style="font-size:1.2rem;font-weight:800;color:var(--green)">—</div></div>
+          <div><div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase">Margin</div><div id="sl_margin" style="font-size:1.2rem;font-weight:800;color:#93C5FD">—</div></div>
+          <div><div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase">Commission</div><div id="sl_comm" style="font-size:1.2rem;font-weight:800;color:var(--gold)">—</div></div>
+        </div>
+      </div>
+      <button class="btn btn-success" style="width:100%" onclick="recordSale()">✅ Record Sale & Close Deal</button>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Sales History</div></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Vehicle</th><th>Buyer</th><th>Sold Price</th><th>GP</th><th>Date</th></tr></thead>
+          <tbody>
+            ${vehicles.filter(v=>v.status==='Sold').map(v=>`
+            <tr>
+              <td><strong>${v.make} ${v.model}</strong><br><small style="color:var(--muted)">${v.reg}</small></td>
+              <td style="color:var(--muted);font-size:0.8rem">${v.buyer||'—'}</td>
+              <td>${R(v.soldPrice)}</td>
+              <td style="color:var(--green);font-weight:600">${R(gp(v))}</td>
+              <td style="color:var(--muted);font-size:0.75rem">${v.soldDate||'—'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+function loadSaleVehicle(){
+  const id=document.getElementById('sl_vehicle').value;
+  const v=getVeh(id);
+  if(!v){document.getElementById('sl_vdetail').style.display='none';return;}
+  document.getElementById('sl_vdetail').style.display='block';
+  document.getElementById('sl_vinfo').innerHTML=`<strong>${v.year} ${v.make} ${v.model} ${v.variant}</strong> · ${v.reg}<br>Investment: <strong>${R(inv(v))}</strong> · Retail: <strong>${R(v.retail)}</strong>`;
+  document.getElementById('sl_price').value=v.retail;
+  calcSale();
+}
+
+function calcSale(){
+  const id=document.getElementById('sl_vehicle').value;
+  const v=getVeh(id);
+  const price=+document.getElementById('sl_price').value||0;
+  if(!v||!price){document.getElementById('sl_calc').style.display='none';return;}
+  const grossP=price-inv(v);
+  const margin=((grossP/price)*100).toFixed(1);
+  const sp=staff.find(s=>s.id===document.getElementById('sl_sp').value);
+  const commRate=sp?sp.commission:0.05;
+  const comm=grossP*commRate;
+  document.getElementById('sl_calc').style.display='block';
+  document.getElementById('sl_gp').textContent=R(grossP);
+  document.getElementById('sl_gp').style.color=grossP>0?'var(--green)':'var(--red)';
+  document.getElementById('sl_margin').textContent=margin+'%';
+  document.getElementById('sl_comm').textContent=R(comm);
+}
+
+function recordSale(){
+  const id=document.getElementById('sl_vehicle').value;
+  const v=getVeh(id);
+  const price=+document.getElementById('sl_price').value;
+  const buyer=document.getElementById('sl_buyer').value;
+  if(!v||!price||!buyer){alert('Please fill in Vehicle, Sale Price and Buyer Name.');return;}
+  v.status='Sold';v.soldPrice=price;v.soldDate=document.getElementById('sl_date').value;
+  v.buyer=buyer;v.salesperson=document.getElementById('sl_sp').value;
+  log('Sale Recorded',`${v.make} ${v.model} sold for ${R(price)} — GP: ${R(gp(v))}`);
+  alert(`🎉 Sale recorded!\n${v.make} ${v.model} sold for ${R(price)}\nGross Profit: ${R(gp(v))}`);
+  renderSales();
+}
+
+// ============================================================
+// LEADS
+// ============================================================
+function renderLeads(){
+  document.getElementById('pageContent').innerHTML=`
+  <div class="section-header">
+    <div><div class="section-title">Lead Management</div><div class="section-sub">${leads.length} total leads</div></div>
+    <button class="btn btn-primary" onclick="openModal('addLead')">+ New Lead</button>
+  </div>
+  <div class="grid-4" style="margin-bottom:20px">
+    ${['New','Contacted','Negotiating','Finance Approved'].map(s=>`
+    <div class="stat-card" style="border-top:3px solid ${leadColor[s]}">
+      <div class="stat-label">${s}</div>
+      <div class="stat-value" style="color:${leadColor[s]}">${leads.filter(l=>l.status===s).length}</div>
+    </div>`).join('')}
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">All Leads</div></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Customer</th><th>Vehicle</th><th>Source</th><th>Status</th><th>Salesperson</th><th>Last Contact</th><th>Notes</th><th>Action</th></tr></thead>
+        <tbody>
+          ${leads.map(l=>{
+            const cust=getCust(l.customer);
+            const veh=l.vehicle?getVeh(l.vehicle):null;
+            const sp=getStaff(l.salesperson);
+            return`<tr>
+              <td><strong>${cust.name}</strong></td>
+              <td style="font-size:0.8rem">${veh?veh.make+' '+veh.model:'—'}</td>
+              <td><span class="badge" style="background:#EFF6FF;color:var(--blue)">${l.source}</span></td>
+              <td><span class="badge" style="background:${leadColor[l.status]}22;color:${leadColor[l.status]}">${l.status}</span></td>
+              <td style="font-size:0.8rem">${sp.name}</td>
+              <td style="color:var(--muted);font-size:0.75rem">${l.lastContact}</td>
+              <td style="font-size:0.78rem;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.notes}</td>
+              <td><select class="form-control" style="padding:4px 8px;font-size:0.75rem;width:auto" onchange="updateLeadStatus('${l.id}',this.value)">
+                ${['New','Contacted','Test Drive Scheduled','Negotiating','Finance Approved','Sold','Lost'].map(s=>`<option ${l.status===s?'selected':''} value="${s}">${s}</option>`).join('')}
+              </select></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function updateLeadStatus(id,status){
+  const l=leads.find(x=>x.id===id);
+  if(l){log('Lead Updated',`${id} status → ${status}`);l.status=status;l.lastContact=new Date().toISOString().split('T')[0];}
+}
+
+// ============================================================
+// PERFORMANCE
+// ============================================================
+function renderPerformance(){
+  const sorted=[...staff].sort((a,b)=>b.profit-a.profit);
+  document.getElementById('pageContent').innerHTML=`
+  <div class="section-header"><div class="section-title">Sales Performance</div></div>
+  <div class="grid-3" style="margin-bottom:20px">
+    ${sorted.map((s,i)=>`
+    <div class="card" style="border-top:3px solid ${i===0?'var(--gold)':i===1?'var(--blue)':'var(--steel)'}">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div class="leader-rank ${i===0?'gold':i===1?'silver':'bronze'}" style="width:40px;height:40px;font-size:1rem">${i+1}</div>
+        <div>
+          <div style="font-weight:700;font-size:0.95rem">${s.name}</div>
+          <div style="font-size:0.72rem;color:var(--muted)">${s.role}</div>
+        </div>
+        <span class="badge" style="margin-left:auto;background:${s.active?'#D1FAE5':'#FEE2E2'};color:${s.active?'#065F46':'#991B1B'}">${s.active?'Active':'Inactive'}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="background:var(--bg);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:1.4rem;font-weight:800;color:var(--blue)">${s.leads}</div>
+          <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase">Active Leads</div>
+        </div>
+        <div style="background:var(--bg);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:1.4rem;font-weight:800;color:var(--green)">${s.closed}</div>
+          <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase">Closed Deals</div>
+        </div>
+        <div style="background:var(--bg);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:1.1rem;font-weight:800;color:var(--text)">${R(s.monthlyVal)}</div>
+          <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase">Monthly Sales</div>
+        </div>
+        <div style="background:var(--bg);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:1.1rem;font-weight:800;color:var(--gold)">${s.rate}%</div>
+          <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase">Conversion</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:6px">
+          <span style="color:var(--muted)">Gross Profit Generated</span>
+          <span style="font-weight:700;color:var(--green)">${R(s.profit)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.8rem">
+          <span style="color:var(--muted)">Commission Earned</span>
+          <span style="font-weight:700;color:var(--gold)">${R(s.profit*s.commission)}</span>
+        </div>
+      </div>
+    </div>`).join('')}
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">🏆 Leaderboard</div></div>
+    ${sorted.map((s,i)=>`
+    <div class="leader-row">
+      <div class="leader-rank ${i===0?'gold':i===1?'silver':'bronze'}">${i+1}</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:0.9rem">${s.name}</div>
+        <div style="font-size:0.7rem;color:var(--muted)">${s.closed} deals · ${s.rate}% conversion</div>
+        <div class="progress-bar" style="margin-top:6px">
+          <div class="progress-fill" style="width:${Math.round((s.profit/sorted[0].profit)*100)}%;background:${i===0?'var(--gold)':i===1?'var(--blue)':'var(--steel)'}"></div>
+        </div>
+      </div>
+      <div style="text-align:right;min-width:100px">
+        <div style="font-weight:700;font-size:0.9rem;color:var(--green)">${R(s.profit)}</div>
+        <div style="font-size:0.7rem;color:var(--muted)">Gross Profit</div>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ============================================================
+// CUSTOMERS
+// ============================================================
+function renderCustomers(){
+  document.getElementById('pageContent').innerHTML=`
+  <div class="section-header">
+    <div><div class="section-title">Customer Management</div><div class="section-sub">${customers.length} customers</div></div>
+    <button class="btn btn-primary" onclick="openModal('addCustomer')">+ Add Customer</button>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Customer Database</div>
+      <input type="text" class="form-control" style="width:200px" placeholder="Search customers…" oninput="filterCustomers(this.value)"/>
+    </div>
+    <div class="table-wrap" id="custTable">
+      ${renderCustTable(customers)}
+    </div>
+  </div>`;
+}
+
+function renderCustTable(list){
+  return`<table>
+    <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Interests</th><th>Notes</th><th>Since</th><th>Action</th></tr></thead>
+    <tbody>
+      ${list.map(c=>`
+      <tr>
+        <td><strong>${c.name}</strong></td>
+        <td>${c.phone}</td><td style="font-size:0.8rem">${c.email}</td>
+        <td><span class="badge" style="background:#EFF6FF;color:var(--blue)">${c.interests}</span></td>
+        <td style="font-size:0.78rem;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)">${c.notes}</td>
+        <td style="color:var(--muted);font-size:0.75rem">${c.created}</td>
+        <td><button class="btn btn-secondary btn-sm" onclick="openModal('editCustomer','${c.id}')">Edit</button></td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
+function filterCustomers(q){
+  const f=customers.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())||c.email.toLowerCase().includes(q.toLowerCase())||c.phone.includes(q));
+  document.getElementById('custTable').innerHTML=renderCustTable(f);
+}
+
+// ============================================================
+// TASKS
+// ============================================================
+function renderTasks(){
+  const overdue=tasks.filter(t=>!t.done&&t.due<new Date().toISOString().split('T')[0]);
+  const upcoming=tasks.filter(t=>!t.done&&t.due>=new Date().toISOString().split('T')[0]);
+  const done=tasks.filter(t=>t.done);
+  document.getElementById('pageContent').innerHTML=`
+  <div class="section-header">
+    <div><div class="section-title">Tasks & Follow-ups</div></div>
+    <button class="btn btn-primary" onclick="openModal('addTask')">+ Add Task</button>
+  </div>
+  ${overdue.length?`<div style="background:#FFF5F5;border:1px solid #FECACA;border-radius:12px;padding:16px;margin-bottom:20px">
+    <div style="font-weight:700;color:var(--red);margin-bottom:12px">⚠️ Overdue Tasks (${overdue.length})</div>
+    ${overdue.map(t=>taskRow(t,'overdue')).join('')}
+  </div>`:''}
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-header"><div class="card-title">Upcoming (${upcoming.length})</div></div>
+    ${upcoming.length?upcoming.map(t=>taskRow(t,'')).join(''):'<div class="empty">No upcoming tasks 🎉</div>'}
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Completed (${done.length})</div></div>
+    ${done.length?done.map(t=>taskRow(t,'done')).join(''):'<div class="empty">No completed tasks yet</div>'}
+  </div>`;
+}
+
+function taskRow(t,cls){
+  const sp=getStaff(t.assignee);
+  const prioColor={High:'var(--red)',Medium:'var(--amber)',Low:'var(--green)'};
+  return`<div class="task-item ${cls}" onclick="toggleTask('${t.id}')">
+    <div class="task-check ${t.done?'done':''}">${t.done?'✓':''}</div>
+    <div style="flex:1">
+      <div style="font-size:0.85rem;font-weight:600;${t.done?'text-decoration:line-through;color:var(--muted)':''}">${t.title}</div>
+      <div style="font-size:0.72rem;color:var(--muted);margin-top:2px">${t.type} · ${sp.name} · Due: ${t.due}</div>
+    </div>
+    <span class="badge" style="background:${prioColor[t.priority]}22;color:${prioColor[t.priority]}">${t.priority}</span>
+  </div>`;
+}
+
+function toggleTask(id){
+  const t=tasks.find(x=>x.id===id);
+  if(t){t.done=!t.done;log('Task Updated',`${t.title} → ${t.done?'Done':'Undone'}`);}
+  renderTasks();
+}
+
+// ============================================================
+// REPORTS
+// ============================================================
+function renderReports(){
+  const soldV=vehicles.filter(v=>v.status==='Sold');
+  const totalRev=soldV.reduce((a,v)=>a+(v.soldPrice||0),0);
+  const totalProfit=soldV.reduce((a,v)=>a+gp(v),0);
+  const avgGP=soldV.length?Math.round(totalProfit/soldV.length):0;
+  document.getElementById('pageContent').innerHTML=`
+  <div class="section-header"><div class="section-title">Reports & Analytics</div></div>
+  <div class="grid-4" style="margin-bottom:20px">
+    <div class="stat-card blue"><div class="stat-label">Total Revenue</div><div class="stat-value sm">${R(totalRev)}</div></div>
+    <div class="stat-card green"><div class="stat-label">Total Profit</div><div class="stat-value sm">${R(totalProfit)}</div></div>
+    <div class="stat-card gold"><div class="stat-label">Avg GP Per Vehicle</div><div class="stat-value sm">${R(avgGP)}</div></div>
+    <div class="stat-card amber"><div class="stat-label">Units Sold</div><div class="stat-value">${soldV.length}</div></div>
+  </div>
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Generate Report</div></div>
+      <div class="form-group"><label class="form-label">Report Type</label>
+        <select class="form-control" id="rpt_type">
+          <option>Inventory Report</option>
+          <option>Sales Report</option>
+          <option>Profit Report</option>
+          <option>Staff Performance Report</option>
+          <option>Lead Report</option>
+          <option>Vehicle Ageing Report</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Date From</label><input class="form-control" type="date" id="rpt_from" value="2024-11-01"/></div>
+        <div class="form-group"><label class="form-label">Date To</label><input class="form-control" type="date" id="rpt_to" value="2024-11-30"/></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="flex:1" onclick="generateReport('pdf')">📄 Export PDF</button>
+        <button class="btn btn-secondary" style="flex:1" onclick="generateReport('excel')">📊 Export Excel</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Lead Source Analysis</div></div>
+      ${['AutoTrader','Facebook','Walk-In','WhatsApp','Referral','Website','cars.co.za'].map(src=>{
+        const n=leads.filter(l=>l.source===src).length;
+        const w=leads.length?Math.round((n/leads.length)*100):0;
+        return`<div class="aging-row">
+          <div class="aging-label">${src}</div>
+          <div class="aging-bar"><div class="aging-fill" style="width:${w}%;background:var(--blue)"></div></div>
+          <div class="aging-count">${n}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Audit Log</div><button class="btn btn-secondary btn-sm" onclick="openModal('viewAudit')">View Full Log</button></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Time</th><th>User</th><th>Action</th><th>Detail</th></tr></thead>
+        <tbody>
+          ${auditLog.slice(0,8).map(l=>`<tr><td style="font-size:0.75rem;color:var(--muted)">${l.date}</td><td style="font-size:0.75rem;color:var(--muted)">${l.time}</td><td style="font-size:0.82rem">${l.user}</td><td><span class="badge" style="background:#EFF6FF;color:var(--blue)">${l.action}</span></td><td style="font-size:0.78rem;color:var(--muted)">${l.detail}</td></tr>`).join('')}
+          ${auditLog.length===0?'<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">No activity recorded yet</td></tr>':''}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function generateReport(format){
+  const type=document.getElementById('rpt_type').value;
+  alert(`📊 ${type} (${format.toUpperCase()}) is being generated...\n\nIn production this connects to Supabase and exports a real ${format==='pdf'?'PDF':'Excel'} file.\n\nThis demo confirms the feature is wired.`);
+  log('Report Generated',`${type} exported as ${format.toUpperCase()}`);
+}
+
+// ============================================================
+// DOCUMENTS
+// ============================================================
+function renderDocuments(){
+  const docTypes=[{icon:'📋',label:'Registration Documents',count:8},{icon:'📝',label:'Purchase Agreements',count:12},{icon:'💼',label:'Sales Agreements',count:7},{icon:'🏦',label:'Finance Documents',count:5},{icon:'👤',label:'Customer Documents',count:14}];
+  document.getElementById('pageContent').innerHTML=`
+  <div class="section-header"><div class="section-title">Document Management</div><button class="btn btn-primary">+ Upload Document</button></div>
+  <div class="grid-3" style="margin-bottom:20px">
+    ${docTypes.map(d=>`
+    <div class="card" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow=''">
+      <div style="font-size:2rem;margin-bottom:8px">${d.icon}</div>
+      <div style="font-weight:700;font-size:0.9rem;margin-bottom:4px">${d.label}</div>
+      <div style="font-size:0.82rem;color:var(--muted)">${d.count} documents</div>
+    </div>`).join('')}
+    <div class="card" style="border:2px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:32px">
+      <div style="font-size:2rem;margin-bottom:8px">📁</div>
+      <div style="font-weight:600;color:var(--muted)">Upload New</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Recent Documents</div><input class="form-control" style="width:200px" placeholder="Search documents…"/></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Document</th><th>Type</th><th>Vehicle / Customer</th><th>Date</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>Purchase Agreement — V003</td><td><span class="badge" style="background:#EFF6FF;color:var(--blue)">Purchase</span></td><td>Toyota Hilux / James Koekemoer</td><td style="color:var(--muted);font-size:0.75rem">2024-11-12</td><td><button class="btn btn-secondary btn-sm">View</button></td></tr>
+          <tr><td>Finance Approval — FNB</td><td><span class="badge" style="background:#F0FDF4;color:var(--green)">Finance</span></td><td>Jimny / Pieter vd Merwe</td><td style="color:var(--muted);font-size:0.75rem">2024-11-25</td><td><button class="btn btn-secondary btn-sm">View</button></td></tr>
+          <tr><td>FICA Documents — C004</td><td><span class="badge" style="background:#FEF3C7;color:#92400E">Customer</span></td><td>Nomsa Dlamini</td><td style="color:var(--muted);font-size:0.75rem">2024-11-28</td><td><button class="btn btn-secondary btn-sm">View</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+function renderSettings(){
+  document.getElementById('pageContent').innerHTML=`
+  <div class="section-header"><div class="section-title">System Settings</div></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Dealership Information</div></div>
+      <div class="form-group"><label class="form-label">Dealership Name</label><input class="form-control" value="Smart Design AutoHub"/></div>
+      <div class="form-group"><label class="form-label">Address</label><input class="form-control" placeholder="Physical address"/></div>
+      <div class="form-group"><label class="form-label">Phone</label><input class="form-control" placeholder="Main phone number"/></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-control" placeholder="info@autohub.co.za"/></div>
+      <div class="form-group"><label class="form-label">VAT Number</label><input class="form-control" placeholder="VAT registration number"/></div>
+      <button class="btn btn-primary">Save Settings</button>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">User Management</div><button class="btn btn-primary btn-sm">+ Add User</button></div>
+      ${staff.map(s=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
+        <div class="user-avatar" style="background:var(--blue)">${s.name.split(' ').map(n=>n[0]).join('')}</div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:0.85rem">${s.name}</div>
+          <div style="font-size:0.72rem;color:var(--muted)">${s.email} · ${s.role}</div>
+        </div>
+        <span class="badge" style="background:${s.active?'#D1FAE5':'#FEE2E2'};color:${s.active?'#065F46':'#991B1B'}">${s.active?'Active':'Inactive'}</span>
+        <button class="btn btn-secondary btn-sm">Edit</button>
+      </div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Access Code Management</div><button class="btn btn-primary btn-sm">Generate Code</button></div>
+      <div style="background:var(--bg);border-radius:8px;padding:16px;text-align:center">
+        <div style="font-size:2rem;font-weight:800;letter-spacing:8px;color:var(--blue);font-family:monospace">AH-7X42</div>
+        <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">Single-use · Expires: 2024-12-01</div>
+      </div>
+      <div style="margin-top:16px">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Code Type</label>
+            <select class="form-control"><option>Single-use</option><option>Multi-use</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Expiry Date</label><input class="form-control" type="date"/></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%">Generate New Code</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Commission Settings</div></div>
+      ${staff.map(s=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="flex:1;font-size:0.85rem;font-weight:600">${s.name}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" class="form-control" style="width:70px;padding:6px" value="${(s.commission*100).toFixed(0)}"/>
+          <span style="font-size:0.8rem;color:var(--muted)">%</span>
+        </div>
+      </div>`).join('')}
+      <button class="btn btn-primary" style="width:100%;margin-top:12px">Save Rates</button>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// MODAL CONTENT BUILDERS
+// ============================================================
+function vehicleModal(id){
+  const v=id?getVeh(id):{};
+  const isEdit=!!id;
+  document.getElementById('modalTitle').textContent=isEdit?`Edit Vehicle — ${v.make} ${v.model}`:'Add New Vehicle';
+  document.getElementById('modalBody').innerHTML=`
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Make</label><input class="form-control" id="vm_make" value="${v.make||''}"/></div>
+    <div class="form-group"><label class="form-label">Model</label><input class="form-control" id="vm_model" value="${v.model||''}"/></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Variant</label><input class="form-control" id="vm_variant" value="${v.variant||''}"/></div>
+    <div class="form-group"><label class="form-label">Year</label><input class="form-control" id="vm_year" type="number" value="${v.year||new Date().getFullYear()}"/></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Registration</label><input class="form-control" id="vm_reg" value="${v.reg||''}"/></div>
+    <div class="form-group"><label class="form-label">VIN Number</label><input class="form-control" id="vm_vin" value="${v.vin||''}"/></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Mileage (km)</label><input class="form-control" id="vm_mileage" type="number" value="${v.mileage||''}"/></div>
+    <div class="form-group"><label class="form-label">Colour</label><input class="form-control" id="vm_colour" value="${v.colour||''}"/></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Fuel Type</label>
+      <select class="form-control" id="vm_fuel">
+        ${['Petrol','Diesel','Hybrid','Electric'].map(f=>`<option ${v.fuel===f?'selected':''}>${f}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Transmission</label>
+      <select class="form-control" id="vm_trans">
+        ${['Automatic','Manual'].map(t=>`<option ${v.trans===t?'selected':''}>${t}</option>`).join('')}
+      </select>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Status</label>
+      <select class="form-control" id="vm_status">
+        ${['Available','Reserved','In Workshop','Awaiting Delivery'].map(s=>`<option ${v.status===s?'selected':''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Retail Price (R)</label><input class="form-control" id="vm_retail" type="number" value="${v.retail||''}"/></div>
+  </div>
+  <div class="form-group"><label class="form-label">Supplier</label><input class="form-control" id="vm_supplier" value="${v.supplier||''}"/></div>
+  <div class="form-group"><label class="form-label">Internal Notes</label><textarea class="form-control" id="vm_notes" rows="2">${v.notes||''}</textarea></div>`;
+  document.getElementById('modalFooter').innerHTML=`
+  ${isEdit?`<button class="btn btn-danger btn-sm" onclick="archiveVehicle('${id}')">Archive</button>`:''}
+  <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+  <button class="btn btn-primary" onclick="saveVehicle('${isEdit?id:''}')">Save Vehicle</button>`;
+}
+
+function saveVehicle(id){
+  const data={
+    make:document.getElementById('vm_make').value,
+    model:document.getElementById('vm_model').value,
+    variant:document.getElementById('vm_variant').value,
+    year:+document.getElementById('vm_year').value,
+    reg:document.getElementById('vm_reg').value,
+    vin:document.getElementById('vm_vin').value,
+    mileage:+document.getElementById('vm_mileage').value,
+    colour:document.getElementById('vm_colour').value,
+    fuel:document.getElementById('vm_fuel').value,
+    trans:document.getElementById('vm_trans').value,
+    status:document.getElementById('vm_status').value,
+    retail:+document.getElementById('vm_retail').value,
+    supplier:document.getElementById('vm_supplier').value,
+    notes:document.getElementById('vm_notes').value,
+  };
+  if(!data.make||!data.model){alert('Make and Model are required.');return;}
+  if(id){
+    const v=getVeh(id);Object.assign(v,data);
+    log('Vehicle Edited',`${id}: ${data.make} ${data.model}`);
+  } else {
+    const newV={id:nextId(vehicles,'V'),buyPrice:0,repairs:0,transport:0,licensing:0,prep:0,purchaseDate:new Date().toISOString().split('T')[0],salesperson:null,soldDate:null,soldPrice:null,days:0,...data};
+    vehicles.push(newV);
+    log('Vehicle Added',`${newV.id}: ${data.make} ${data.model}`);
+  }
+  closeModal();
+  if(currentPage==='inventory') renderInventory();
+  alert(`✅ Vehicle ${id?'updated':'added'} successfully!`);
+}
+
+function archiveVehicle(id){
+  if(confirm('Archive this vehicle? It will be hidden from active inventory but preserved in records.')){
+    const v=getVeh(id);v.status='Archived';
+    log('Vehicle Archived',`${id}: ${v.make} ${v.model}`);
+    closeModal();renderInventory();
+  }
+}
+
+function viewVehicleModal(id){
+  const v=getVeh(id);if(!v)return;
+  const totalCost=inv(v);
+  document.getElementById('modalTitle').textContent=`${v.year} ${v.make} ${v.model}`;
+  document.getElementById('modalBody').innerHTML=`
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+    <span class="badge" style="background:${statusColor[v.status]||'var(--steel)'};color:white;font-size:0.78rem;padding:6px 14px">${v.status}</span>
+    <span style="font-size:0.78rem;color:var(--muted)">${v.reg} · VIN: ${v.vin}</span>
+  </div>
+  <div class="detail-grid">
+    <div class="detail-item"><div class="dlabel">Variant</div><div class="dvalue">${v.variant}</div></div>
+    <div class="detail-item"><div class="dlabel">Colour</div><div class="dvalue">${v.colour}</div></div>
+    <div class="detail-item"><div class="dlabel">Mileage</div><div class="dvalue">${Number(v.mileage).toLocaleString()} km</div></div>
+    <div class="detail-item"><div class="dlabel">Fuel / Trans</div><div class="dvalue">${v.fuel} / ${v.trans}</div></div>
+    <div class="detail-item"><div class="dlabel">Purchase Date</div><div class="dvalue">${v.purchaseDate}</div></div>
+    <div class="detail-item"><div class="dlabel">Supplier</div><div class="dvalue">${v.supplier}</div></div>
+  </div>
+  <div style="background:linear-gradient(135deg,var(--black),#1E293B);border-radius:10px;padding:16px;color:white;margin:16px 0">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center">
+      <div><div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Total Investment</div><div style="font-size:1rem;font-weight:800;color:#93C5FD">${R(totalCost)}</div></div>
+      <div><div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Retail / Sold</div><div style="font-size:1rem;font-weight:800;color:white">${R(v.soldPrice||v.retail)}</div></div>
+      <div><div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Gross Profit</div><div style="font-size:1rem;font-weight:800;color:var(--green)">${R(gp(v))}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center;margin-top:12px;padding-top:12px;border-top:1px solid #1E293B">
+      <div><div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Buy Price</div><div style="font-size:0.85rem;color:white">${R(v.buyPrice)}</div></div>
+      <div><div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Repairs</div><div style="font-size:0.85rem;color:white">${R(v.repairs)}</div></div>
+      <div><div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Days In Stock</div><div style="font-size:0.85rem;color:${agingColor(v.days)};font-weight:700">${v.days}d</div></div>
+    </div>
+  </div>
+  <div style="background:var(--bg);border-radius:8px;padding:12px;font-size:0.82rem;color:var(--muted)"><strong style="color:var(--text)">Notes:</strong> ${v.notes||'No notes'}</div>
+  ${v.status==='Sold'?`<div style="background:#F0FDF4;border-radius:8px;padding:12px;margin-top:12px;font-size:0.82rem"><strong style="color:var(--green)">✅ SOLD</strong> — ${v.soldDate} for ${R(v.soldPrice)}</div>`:''}`;
+  document.getElementById('modalFooter').innerHTML=`
+  <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+  <button class="btn btn-secondary" onclick="closeModal();openModal('editVehicle','${id}')">Edit</button>
+  ${v.status!=='Sold'?`<button class="btn btn-success" onclick="closeModal();navigate('sales',document.querySelector('.nav-item'));openModal('addSale','${id}')">Record Sale</button>`:''}`;
+}
+
+function customerModal(id){
+  const c=id?getCust(id):{};
+  document.getElementById('modalTitle').textContent=id?`Edit — ${c.name}`:'Add Customer';
+  document.getElementById('modalBody').innerHTML=`
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Full Name</label><input class="form-control" id="cm_name" value="${c.name||''}"/></div>
+    <div class="form-group"><label class="form-label">Phone</label><input class="form-control" id="cm_phone" value="${c.phone||''}"/></div>
+  </div>
+  <div class="form-group"><label class="form-label">Email</label><input class="form-control" id="cm_email" value="${c.email||''}"/></div>
+  <div class="form-group"><label class="form-label">Physical Address</label><input class="form-control" id="cm_address" value="${c.address||''}"/></div>
+  <div class="form-group"><label class="form-label">Vehicle Interests</label><input class="form-control" id="cm_interests" value="${c.interests||''}" placeholder="e.g. SUV, Diesel, 4x4"/></div>
+  <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="cm_notes" rows="3">${c.notes||''}</textarea></div>`;
+  document.getElementById('modalFooter').innerHTML=`
+  <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+  <button class="btn btn-primary" onclick="saveCustomer('${id||''}')">Save Customer</button>`;
+}
+
+function saveCustomer(id){
+  const data={
+    name:document.getElementById('cm_name').value,
+    phone:document.getElementById('cm_phone').value,
+    email:document.getElementById('cm_email').value,
+    address:document.getElementById('cm_address').value,
+    interests:document.getElementById('cm_interests').value,
+    notes:document.getElementById('cm_notes').value,
+  };
+  if(!data.name){alert('Name is required.');return;}
+  if(id){const c=getCust(id);Object.assign(c,data);log('Customer Updated',data.name);}
+  else{customers.push({id:nextId(customers,'C'),created:new Date().toISOString().split('T')[0],...data});log('Customer Added',data.name);}
+  closeModal();if(currentPage==='customers')renderCustomers();
+  alert('✅ Customer saved!');
+}
+
+function leadModal(){
+  document.getElementById('modalTitle').textContent='New Lead';
+  document.getElementById('modalBody').innerHTML=`
+  <div class="form-group"><label class="form-label">Customer</label>
+    <select class="form-control" id="lm_cust">
+      <option value="">Select customer</option>
+      ${customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
+    </select>
+  </div>
+  <div class="form-group"><label class="form-label">Vehicle of Interest</label>
+    <select class="form-control" id="lm_veh">
+      <option value="">None selected</option>
+      ${vehicles.filter(v=>v.status==='Available'||v.status==='Reserved').map(v=>`<option value="${v.id}">${v.year} ${v.make} ${v.model} — ${v.reg}</option>`).join('')}
+    </select>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Lead Source</label>
+      <select class="form-control" id="lm_source">
+        ${['Walk-In','Website','Facebook','WhatsApp','Referral','AutoTrader','cars.co.za'].map(s=>`<option>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Assign To</label>
+      <select class="form-control" id="lm_sp">
+        ${staff.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}
+      </select>
+    </div>
+  </div>
+  <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="lm_notes" rows="3" placeholder="Initial enquiry notes…"></textarea></div>`;
+  document.getElementById('modalFooter').innerHTML=`
+  <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+  <button class="btn btn-primary" onclick="saveLead()">Create Lead</button>`;
+}
+
+function saveLead(){
+  const cust=document.getElementById('lm_cust').value;
+  if(!cust){alert('Please select a customer.');return;}
+  const newL={
+    id:nextId(leads,'L'),customer:cust,salesperson:document.getElementById('lm_sp').value,
+    vehicle:document.getElementById('lm_veh').value||null,source:document.getElementById('lm_source').value,
+    status:'New',created:new Date().toISOString().split('T')[0],lastContact:new Date().toISOString().split('T')[0],
+    notes:document.getElementById('lm_notes').value
+  };
+  leads.push(newL);log('Lead Created',`${getCust(cust).name} — ${newL.source}`);
+  closeModal();if(currentPage==='leads')renderLeads();
+  alert('✅ Lead created!');
+}
+
+function taskModal(){
+  document.getElementById('modalTitle').textContent='Add Task';
+  document.getElementById('modalBody').innerHTML=`
+  <div class="form-group"><label class="form-label">Task Title</label><input class="form-control" id="tm_title" placeholder="Describe the task…"/></div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Type</label>
+      <select class="form-control" id="tm_type">
+        ${['Customer Call','Quotation','Test Drive','Finance Update','Delivery Arrangements'].map(t=>`<option>${t}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Priority</label>
+      <select class="form-control" id="tm_priority"><option>High</option><option selected>Medium</option><option>Low</option></select>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Assign To</label>
+      <select class="form-control" id="tm_sp">
+        ${staff.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Due Date</label><input class="form-control" id="tm_due" type="date" value="${new Date().toISOString().split('T')[0]}"/></div>
+  </div>`;
+  document.getElementById('modalFooter').innerHTML=`
+  <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+  <button class="btn btn-primary" onclick="saveTask()">Add Task</button>`;
+}
+
+function saveTask(){
+  const title=document.getElementById('tm_title').value;
+  if(!title){alert('Task title required.');return;}
+  tasks.push({id:nextId(tasks,'T'),title,type:document.getElementById('tm_type').value,
+    priority:document.getElementById('tm_priority').value,assignee:document.getElementById('tm_sp').value,
+    due:document.getElementById('tm_due').value,done:false});
+  log('Task Added',title);closeModal();if(currentPage==='tasks')renderTasks();
+  alert('✅ Task added!');
+}
+
+function auditModal(){
+  document.getElementById('modalTitle').textContent='Full Audit Log';
+  document.getElementById('modalBody').innerHTML=`
+  <div class="table-wrap" style="max-height:60vh;overflow-y:auto">
+    <table>
+      <thead><tr><th>Date</th><th>Time</th><th>User</th><th>Action</th><th>Detail</th></tr></thead>
+      <tbody>
+        ${auditLog.map(l=>`<tr><td style="font-size:0.75rem;color:var(--muted)">${l.date}</td><td style="font-size:0.75rem;color:var(--muted)">${l.time}</td><td style="font-size:0.82rem">${l.user}</td><td><span class="badge" style="background:#EFF6FF;color:var(--blue)">${l.action}</span></td><td style="font-size:0.78rem;color:var(--muted)">${l.detail}</td></tr>`).join('')}
+        ${auditLog.length===0?'<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">No activity recorded yet</td></tr>':''}
+      </tbody>
+    </table>
+  </div>`;
+  document.getElementById('modalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeModal()">Close</button>`;
+}
+
+// ============================================================
+// GLOBAL SEARCH
+// ============================================================
+function globalSearchFn(q){
+  if(!q||q.length<2)return;
+  const qL=q.toLowerCase();
+  const vResults=vehicles.filter(v=>(v.make+v.model+v.reg+v.vin+v.colour).toLowerCase().includes(qL));
+  const cResults=customers.filter(c=>(c.name+c.email+c.phone).toLowerCase().includes(qL));
+  if(vResults.length||cResults.length){
+    // Could display a dropdown — here we navigate to inventory for vehicle results
+  }
+}
+
+// ============================================================
+// SPLASH & INIT
+// ============================================================
+setTimeout(()=>{
+  document.getElementById('splash').classList.add('fade');
+  setTimeout(()=>{
+    document.getElementById('splash').style.display='none';
+    document.getElementById('app').classList.add('show');
+    renderDashboard();
+  },800);
+},3000);
+</script>
+</body>
+</html>
