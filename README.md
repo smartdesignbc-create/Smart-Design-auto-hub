@@ -1,5 +1,5 @@
 # Smart Design AutoHub
-### Dealership Management System — Production Blueprint V1.1
+### Premium Dealership Management System — Version 2.0
 
 > **Driving Your Business Forward**
 
@@ -7,201 +7,132 @@
 
 ## Overview
 
-Smart Design AutoHub is a complete dealership management platform built for used vehicle dealerships, new vehicle dealerships, and multi-branch automotive operations. It provides full operational visibility across inventory, sales, profitability, CRM, leads, staff performance, and reporting — all in one elegant system.
+Smart Design AutoHub is a complete dealership management platform rebuilt with a premium dark theme, simplified navigation, and a powerful dashboard that gives the owner an immediate wow when the app opens. Built for used vehicle dealerships, new vehicle dealerships, and growing automotive operations across South Africa.
 
 ---
 
-## Live Demo
+## What's New in Version 2.0
 
-Deploy instantly to Vercel — see deployment instructions below.
+- Full dark premium theme — no more plain white pages
+- Animated splash screen with 3 vehicles rising into view
+- Hero profit banner on the dashboard — revenue, profit and potential GP visible immediately
+- Simplified navigation — renamed to plain English (Fleet Inventory, Buy a Vehicle, Record a Sale)
+- Colour-coded stat cards with gradients — blue, green, gold, purple
+- Vehicle grid cards with dark showroom backgrounds
+- Cleaner modals, smoother forms
+- Fully responsive on laptop, tablet and phone
 
 ---
 
 ## Features
 
 ### Dashboard
-- Real-time KPIs: Total Vehicles, Available, Sold, Reserved, In Workshop
-- Financial summary: Stock Value, Retail Value, Potential Gross Profit, Monthly Revenue & Profit
-- Revenue vs Profit bar chart (6-month trend)
-- Lead pipeline overview
-- Staff performance summary
-- Quick action shortcuts
+- Animated splash with 3 SVG vehicles (sedan, SUV, bakkie)
+- Hero banner: Monthly Revenue, Profit, Potential GP at a glance
+- Fleet status cards: Available, Sold, Reserved, In Workshop
+- 6-month revenue bar chart
+- Live lead pipeline count by stage
+- Sales team leaderboard
+- Full fleet overview table
+- Quick action buttons
 
-### Vehicle Inventory
-- Full vehicle profiles (Make, Model, Variant, Year, Mileage, Colour, Fuel, Transmission, VIN, Registration)
+### Fleet Inventory
+- Dark vehicle cards with showroom feel
 - Grid and list view toggle
-- Filter by status: Available / Reserved / Sold / In Workshop
-- Status badges with colour coding
-- Days-in-stock tracking with ageing alerts
+- Filter: All / Available / Reserved / Sold / In Workshop
 - Add, Edit, Archive vehicles
+- View modal with full cost breakdown and profit
 
-### Vehicle Purchase Module
-- Capture seller details and all purchase costs
-- Automatic calculation: Purchase Price + Repairs + Transport + Licensing + Preparation = **Actual Vehicle Cost**
-- Projected Gross Profit displayed live as you type
-- Purchase history table
+### Buy a Vehicle (Purchase Module)
+- Capture all costs: Purchase Price, Repairs, Transport, Licensing, Preparation
+- Live calculation of Total Cost In and Projected Gross Profit
+- Recent purchases table
 
-### Vehicle Sales Module
-- Select vehicle, auto-loads investment cost
-- Capture buyer, sale price, deposit, finance institution, salesperson
-- Live calculations: Gross Profit, Profit Margin, Commission
-- Vehicle status auto-updates to SOLD on recording
-
-### Executive Profit Dashboard
-- Total inventory investment vs retail value
-- Potential profit on current stock
-- Monthly and annualised profit estimates
-- Top salesperson, most profitable vehicle, fastest and slowest selling
-- Staff profit contribution leaderboard with progress bars
-
-### Lead Management
-- Lead sources: Walk-In, Website, Facebook, WhatsApp, Referral, AutoTrader, cars.co.za
-- Pipeline stages: New → Contacted → Test Drive Scheduled → Negotiating → Finance Approved → Sold / Lost
-- Assign leads to salespersons
-- Update lead status inline
-- Full lead history
-
-### Sales Performance
-- Individual salesperson cards: Active Leads, Closed Deals, Monthly Sales Value, Gross Profit, Conversion Rate, Commission Earned
-- Leaderboard ranking with progress bars
-
-### Customer Management (CRM)
-- Full customer profiles: Name, Phone, Email, Address, Vehicle Interests, Notes
-- Searchable customer database
-- Add and edit customers
-
-### Vehicle Preparation Tracker
-- Six-step checklist per vehicle: Mechanical Inspection, Valet, Licensing, Roadworthy, Photography, Website Listing
-- Live percentage completion per vehicle
+### Vehicle Preparation
+- 6-step checklist per vehicle
+- Live progress bar 0–100%
 - Toggle each step on/off
+- Colour changes: red → amber → green as progress increases
 
-### Stock Ageing Module
-- Automatic ageing categories: 0–30, 31–60, 61–90, 90+ Days
+### Stock Ageing
+- 4 categories: 0–30, 31–60, 61–90, 90+ Days
 - Colour-coded alerts
-- Action required flags for 90+ day stock
+- Action Required flag for 90+ day stock
 
-### Tasks & Follow-ups
-- Task types: Customer Calls, Quotations, Test Drives, Finance Updates, Delivery Arrangements
+### Record a Sale
+- Select vehicle — auto-loads investment cost
+- Live GP, margin and commission calculator
+- Vehicle status auto-updates to SOLD
+- Full sales history table
+
+### Lead Pipeline
+- 5 pipeline stages with colour-coded counts
+- Full lead table with inline status update
+- Add leads with source, vehicle, salesperson assignment
+
+### Sales Team
+- Individual performance cards per salesperson
+- Active leads, closed deals, monthly sales value, conversion rate
+- Gross profit and commission breakdown
+- Full leaderboard with progress bars
+
+### Customers
+- Full customer database
+- Live search
+- Add and edit customer records
+
+### Follow-ups & Tasks
+- Overdue tasks highlighted in red
 - Priority levels: High, Medium, Low
-- Overdue task highlighting
 - Mark tasks complete
+- Add new tasks with type, assignee and due date
 
 ### Reports
-- Report types: Inventory, Sales, Profit, Staff, Lead, Ageing
-- Date range selection
-- Export to PDF / Excel (wired for Supabase backend)
-- Lead source analysis chart
-- Audit log viewer
-
-### Document Management
-- Categories: Registration Documents, Purchase Agreements, Sales Agreements, Finance Documents, Customer Documents
-- Upload and search functionality
+- Revenue, profit, avg GP, units sold summary
+- Lead source breakdown chart
+- Export PDF / Excel
+- Audit log of all system activity
 
 ### Settings
 - Dealership information
 - User management
-- Access code generation (single-use / multi-use, expiry dates)
-- Commission rate configuration per salesperson
-
----
-
-## Technology Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | HTML5 / CSS3 / Vanilla JS (zero dependencies) |
-| Production Frontend | Next.js |
-| Backend | Supabase |
-| Database | PostgreSQL |
-| Authentication | Supabase Auth |
-| Storage | Supabase Storage |
-| Hosting | Vercel |
-| Version Control | GitHub |
+- Commission rates per salesperson
+- Access code generator
 
 ---
 
 ## Colour Theme
 
-| Token | Colour | Hex |
-|---|---|---|
-| Primary | Midnight Black | `#0F172A` |
-| Secondary | Steel Grey | `#475569` |
-| Accent | Electric Blue | `#2563EB` |
-| Success | Emerald Green | `#10B981` |
-| Warning | Amber | `#F59E0B` |
-| Sold | Luxury Gold | `#D4AF37` |
-| Background | Clean White | `#F8FAFC` |
-
----
-
-## User Roles
-
-| Role | Access |
+| Token | Hex |
 |---|---|
-| Super Administrator | Full system — inventory, sales, users, reports, settings, financial data |
-| Sales Manager | Inventory view, lead assignment, team management, reports |
-| Sales Consultant | Assigned leads, lead status updates, test drive scheduling |
+| Background | `#0A0F1E` |
+| Surface | `#111827` |
+| Card | `#1A2235` |
+| Border | `#1F2D45` |
+| Electric Blue | `#2563EB` |
+| Emerald Green | `#10B981` |
+| Luxury Gold | `#D4AF37` |
+| Amber | `#F59E0B` |
+| Red | `#EF4444` |
 
 ---
 
 ## Deployment
 
-### Option 1 — Vercel (Recommended, one click)
+### Upload to GitHub
+Push these 3 files to a GitHub repo:
+- `index.html`
+- `README.md`
+- `vercel.json`
 
-1. Fork or upload this repository to GitHub
-2. Go to [vercel.com](https://vercel.com) and click **New Project**
-3. Import your GitHub repository
-4. Vercel auto-detects the project — click **Deploy**
-5. Done. Your app is live.
-
-### Option 2 — Manual HTML
-
-Open `autohub_master.html` directly in any browser. No server required for the demo version.
-
----
-
-## Environment Variables (Production Supabase)
-
-When connecting to a real Supabase backend, add these to your Vercel project settings:
-
-```
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
----
-
-## Roadmap — Phase 2
-
-- WhatsApp Integration
-- AI Vehicle Pricing Engine
-- Workshop Management Module
-- Finance & Insurance (F&I) Module
-- Multi-Branch Management
-- Customer Mobile App
-- Online Vehicle Reservations
-- Digital Deal Jackets
-- Vehicle Inspection App
-
----
-
-## Security
-
-- Role-Based Access Control (RBAC)
-- Two-Factor Authentication (2FA) via Supabase Auth
-- SSL encryption on all connections
-- Complete audit logging (user, date, time, action, before/after values)
-- No records permanently deleted without Super Administrator authorisation
-- All historical activity preserved
+### Deploy to Vercel
+1. Go to vercel.com → New Project
+2. Import your GitHub repo
+3. Click Deploy — live in under 2 minutes
 
 ---
 
 ## License
 
 Private and Confidential — Smart Design AutoHub  
-© 2024 Smart Design. All rights reserved.  
-Unauthorised copying, distribution or reverse engineering is prohibited.
-
----
-
-*Built with ❤️ for South African motor dealerships*
+© 2024 Smart Design. All rights reserved.
